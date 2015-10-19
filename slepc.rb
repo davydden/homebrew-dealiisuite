@@ -15,11 +15,11 @@ class Slepc < Formula
   option "with-complex", "Use complex version by default. Otherwise, real-valued version will be symlinked"
   option "without-check", "Skip run-time tests (not recommended)"
 
-  depends_on "davydden/dealiisuite/petsc"
+  depends_on "petsc"
   depends_on :mpi => [:cc, :f90]
   depends_on :fortran
   depends_on :x11 => :optional
-  depends_on "davydden/dealiisuite/arpack" => [:recommended, "with-mpi"]
+  depends_on "arpack" => [:recommended, "with-mpi"]
 
   def install
     ENV.deparallelize

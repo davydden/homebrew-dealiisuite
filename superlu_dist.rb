@@ -17,7 +17,7 @@ class SuperluDist < Formula
   depends_on :fortran
   depends_on :mpi => [:cc, :f77]
 
-  depends_on "davydden/dealiisuite/parmetis"
+  depends_on "parmetis"
   depends_on BlasRequirement
 
   # fix duplicate symbols [mc64dd_,mc64ed_,mc64fd_] when linking with superlu

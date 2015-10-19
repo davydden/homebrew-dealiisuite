@@ -17,10 +17,10 @@ class Mumps < Formula
 
   depends_on :mpi => [:cc, :cxx, :f90, :recommended]
   if build.with? "mpi"
-    depends_on "davydden/dealiisuite/scalapack"
+    depends_on "scalapack"
   end
-  depends_on "davydden/dealiisuite/metis"    => :optional if build.without? "mpi"
-  depends_on "davydden/dealiisuite/parmetis" => :optional if build.with? "mpi"
+  depends_on "metis"    => :optional if build.without? "mpi"
+  depends_on "parmetis" => :optional if build.with? "mpi"
   #-depends_on "scotch5"  => :optional
   #-depends_on "scotch"   => :optional
   depends_on BlasRequirement

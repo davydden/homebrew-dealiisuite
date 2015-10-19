@@ -43,15 +43,15 @@ class Trilinos < Formula
   #-depends_on "doxygen"      => ["with-graphviz", :recommended]
   #-depends_on "hwloc"        => :recommended
   #-depends_on "libmatio"     => [:recommended] + ((build.with? "hdf5") ? ["with-hdf5"] : [])
-  depends_on "davydden/dealiisuite/metis"        => :recommended
-  depends_on "davydden/dealiisuite/mumps"        => :recommended
+  depends_on "metis"        => :recommended
+  depends_on "mumps"        => :recommended
   #-depends_on "netcdf"       => ["with-fortran", :recommended]
-  depends_on "davydden/dealiisuite/parmetis"     => :recommended if build.with? "mpi"
-  depends_on "davydden/dealiisuite/scalapack"    => :recommended
+  depends_on "parmetis"     => :recommended if build.with? "mpi"
+  depends_on "scalapack"    => :recommended
   #-depends_on "scotch"       => :recommended
   #-depends_on "suite-sparse" => :recommended
   #-depends_on "superlu"      => :recommended // Amesos2_Superlu_FunctionMap.hpp:83:14: error: no type named 'superlu_options_t' in namespace 'SLU'
-  depends_on "davydden/dealiisuite/superlu_dist" => [:recommended] if build.with? "parmetis"
+  depends_on "superlu_dist" => [:recommended] if build.with? "parmetis"
 
   #-depends_on "petsc"        => :optional # ML packages currently do not compile with PETSc >= 3.3
   #-depends_on "qd"           => :optional # Fails due to global namespace issues (std::pow vs qd::pow)
@@ -59,9 +59,9 @@ class Trilinos < Formula
 
   # Experimental TPLs:
   #-depends_on "eigen"        => :recommended
-  depends_on "davydden/dealiisuite/hypre"        => [:recommended] + mpidep # EpetraExt tests fail to compile
+  depends_on "hypre"        => [:recommended] + mpidep # EpetraExt tests fail to compile
   #-depends_on "glpk"         => :recommended
-  depends_on "davydden/dealiisuite/hdf5"         => [:recommended] + mpidep
+  depends_on "hdf5"         => [:recommended] + mpidep
   #-depends_on "tbb"          => :recommended
   #-depends_on "glm"          => :recommended
   #-depends_on "yaml-cpp"     => :recommended

@@ -6,21 +6,21 @@ class BlasRequirement < Requirement
   # the only case when test should fail is when we
   # need BLAS with single precision or complex with Fortran =>
   # use veclibfort
-  default_formula "davydden/dealiisuite/veclibfort" if OS.mac?
+  default_formula "veclibfort" if OS.mac?
   # On Linux we can always fallback to openblas
-  default_formula "davydden/dealiisuite/openblas"   unless OS.mac?
+  default_formula "openblas"   unless OS.mac?
 
   def initialize(tags = [])
     # if openblas is installed, use it on OS-X/Linux
-    if Formula["davydden/dealiisuite/openblas"].installed?
-      @default_names = "davydden/dealiisuite/openblas"
-      @default_lib   = "#{Formula["davydden/dealiisuite/openblas"].opt_lib}"
-      @default_inc   = "#{Formula["davydden/dealiisuite/openblas"].opt_include}"
+    if Formula["openblas"].installed?
+      @default_names = "openblas"
+      @default_lib   = "#{Formula["openblas"].opt_lib}"
+      @default_inc   = "#{Formula["openblas"].opt_include}"
     # if we are on OSX and need fortran and veclibfort is installed use it
-    elsif tags.include?(:fortran_single) && OS.mac? && Formula["davydden/dealiisuite/veclibfort"].installed?
-      @default_names = "davydden/dealiisuite/veclibfort"
-      @default_lib   = "#{Formula["davydden/dealiisuite/veclibfort"].opt_lib}"
-      @default_inc   = "#{Formula["davydden/dealiisuite/veclibfort"].opt_include}"
+    elsif tags.include?(:fortran_single) && OS.mac? && Formula["veclibfort"].installed?
+      @default_names = "veclibfort"
+      @default_lib   = "#{Formula["veclibfort"].opt_lib}"
+      @default_inc   = "#{Formula["veclibfort"].opt_include}"
     # Otherwise do standard "blas;lapack"
     else
       @default_names = "blas;lapack"

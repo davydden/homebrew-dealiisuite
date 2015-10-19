@@ -27,21 +27,21 @@ class Dealii < Formula
 
   mpidep      = (build.with? "mpi")      ? ["with-mpi"]      : []
 
-  depends_on "davydden/dealiisuite/arpack"       => [:recommended] + mpidep
+  depends_on "arpack"       => [:recommended] + mpidep
   depends_on "boost"        => :recommended
   #-depends_on "doxygen"      => :optional # installation error: CMake Error at doc/doxygen/cmake_install.cmake:31 (file)
-  depends_on "davydden/dealiisuite/hdf5"         => [:recommended] + mpidep
-  depends_on "davydden/dealiisuite/metis"        => :recommended
+  depends_on "hdf5"         => [:recommended] + mpidep
+  depends_on "metis"        => :recommended
   #-depends_on "muparser"     => :recommended if MacOS.version != :mountain_lion # Undefined symbols for architecture x86_64
   #-depends_on "netcdf"       => [:recommended, "with-fortran", "with-cxx-compat"]
   #-depends_on "opencascade"  => :recommended
-  depends_on "davydden/dealiisuite/p4est"        => :recommended if build.with? "mpi"
-  depends_on "davydden/dealiisuite/parmetis"     => :recommended if build.with? "mpi"
-  depends_on "davydden/dealiisuite/petsc"        => :recommended
-  depends_on "davydden/dealiisuite/slepc"        => :recommended
+  depends_on "p4est"        => :recommended if build.with? "mpi"
+  depends_on "parmetis"     => :recommended if build.with? "mpi"
+  depends_on "petsc"        => :recommended
+  depends_on "slepc"        => :recommended
   #-depends_on "suite-sparse" => :recommended
   #-depends_on "tbb"          => :recommended
-  depends_on "davydden/dealiisuite/trilinos"     => :recommended
+  depends_on "trilinos"     => :recommended
 
   needs :cxx11
   def install

@@ -70,6 +70,9 @@ brew postinstall openssl
 ```
 brew tap davydden/dealiisuite
 
+# prioritize this tap over homebrew-science
+brew tap-pin davydden/dealiisuite
+
 brew install hdf5 --with-mpi --c++11
 brew install hypre --with-mpi --without-check
 brew install metis

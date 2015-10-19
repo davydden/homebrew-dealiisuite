@@ -29,14 +29,14 @@ class Petsc < Formula
   depends_on BlasRequirement
 
   #-depends_on "superlu43"    => :recommended
-  depends_on "davydden/dealiisuite/superlu_dist" => :recommended
-  depends_on "davydden/dealiisuite/metis"        => :recommended
-  depends_on "davydden/dealiisuite/parmetis"     => :recommended
-  depends_on "davydden/dealiisuite/scalapack"    => :recommended
-  depends_on "davydden/dealiisuite/mumps"        => :recommended # mumps is built with mpi by default
-  depends_on "davydden/dealiisuite/hypre"        => ["with-mpi", :recommended]
+  depends_on "superlu_dist" => :recommended
+  depends_on "metis"        => :recommended
+  depends_on "parmetis"     => :recommended
+  depends_on "scalapack"    => :recommended
+  depends_on "mumps"        => :recommended # mumps is built with mpi by default
+  depends_on "hypre"        => ["with-mpi", :recommended]
   #-depends_on "sundials"     => ["with-mpi", :recommended]
-  depends_on "davydden/dealiisuite/hdf5"         => ["with-mpi", :recommended]
+  depends_on "hdf5"         => ["with-mpi", :recommended]
   #-depends_on "hwloc"        => :recommended
   #-depends_on "suite-sparse" => [:recommended]
   #-depends_on "netcdf"       => ["with-fortran", :recommended]
