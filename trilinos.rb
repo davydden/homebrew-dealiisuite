@@ -62,7 +62,7 @@ class Trilinos < Formula
   depends_on "hypre"        => [:recommended] + mpidep # EpetraExt tests fail to compile
   #-depends_on "glpk"         => :recommended
   depends_on "hdf5"         => [:recommended] + mpidep
-  #-depends_on "tbb"          => :recommended
+  #-depends_on "tbb"          => :recommended # do NOT use as PETSc is not thread-safe anyway!
   #-depends_on "glm"          => :recommended
   #-depends_on "yaml-cpp"     => :recommended
 
@@ -136,7 +136,6 @@ class Trilinos < Formula
     # It could be that there is a missing #include somewhere in Trilinos which becames visible when we
     # try to use it.
     # For now disable OpenMP:
-    # args << onoff("-DTrilinos_ENABLE_OpenMP:BOOL=", (ENV.compiler != :clang))
     args << "-DTrilinos_ENABLE_OpenMP:BOOL=OFF"
     args << "-DTrilinos_ENABLE_CXX11:BOOL=ON"
 
