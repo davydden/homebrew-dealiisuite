@@ -69,10 +69,12 @@ class BlasRequirement < Requirement
     blas_lib   = ENV["HOMEBREW_BLASLAPACK_LIB"]   || @default_lib
     blas_inc   = ENV["HOMEBREW_BLASLAPACK_INC"]   || @default_inc
     cflags     = BlasRequirement.cflags(blas_inc)
-    ldflags    = BlasRequirement.ldflags(blas_lib,blas_names)
-    # MKL BLAS may want to link against libpthread (e.g. pthread_mutex_trylock)
-    # and we most likely need basic math (atan2, sin, etc) from libm
-    # Adding both won't make much harm:
+    # make sure executable is linked with RPATH:
+    ldflags    = blas_lib != "" ? "-Wl,-rpath,#{blas_lib} " : ""
+    ldflags   += BlasRequirement.ldflags(blas_lib,blas_names)
+    # even sequetial MKL BLAS has to be linked against libpthread (e.g. pthread_mutex_trylock)!
+    # We most likely need basic math (atan2, sin, etc) from libm .
+    # Adding both won't make much harm for a single test:
     ldflags   += " -lpthread -lm"
     success = nil
     Dir.mktmpdir do |tmpdir|
