@@ -4,10 +4,9 @@ require_relative "requirements/cmake_requirement"
 class Petsc < Formula
   desc "Scalable (parallel) solution of scientific applications modeled by partial differential equations"
   homepage "http://www.mcs.anl.gov/petsc/index.html"
-  url "http://ftp.mcs.anl.gov/pub/petsc/release-snapshots/petsc-lite-3.6.1.tar.gz"
-  sha256 "aeac101565a4ba609c3f3f13ada475720bcd32a44676e3cbfe792da1c9fb32a2"
+  url "http://ftp.mcs.anl.gov/pub/petsc/release-snapshots/petsc-lite-3.6.2.tar.gz"
+  sha256 "8902459bd566a9a1b79bee0bbc15bf6afe53c58fa95c4d89beb7e99e5ca9008e"
   head "https://bitbucket.org/petsc/petsc", :using => :git
-  revision 3
 
   bottle do
     sha256 "46e523fd9c406970a330618cabae9064a6b8cc68958b9431ce757e8924aeec6e" => :el_capitan
@@ -16,7 +15,7 @@ class Petsc < Formula
   end
 
   option "without-check", "Skip build-time tests (not recommended)"
-  option "with-complex", "Link complex version of PETSc by default."
+  option "with-complex", "Build complex version of PETSc"
   option "with-debug", "Build debug version"
 
   deprecated_option "complex" => "with-complex"
@@ -59,11 +58,14 @@ class Petsc < Formula
     ENV.delete "CXX"
     ENV.delete "F77"
     ENV.delete "FC"
+    # PETSc is not threadsafe => disable threads as we use MPI anyway!
     args = %W[CC=#{ENV["MPICC"]}
               CXX=#{ENV["MPICXX"]}
               F77=#{ENV["MPIF77"]}
               FC=#{ENV["MPIFC"]}
               --with-shared-libraries=1
+              --with-pthread=0
+              --with-openmp=0
            ]
     args << ("--with-debugging=" + ((build.with? "debug") ? "1" : "0"))
 
@@ -99,32 +101,26 @@ class Petsc < Formula
     ENV["PETSC_DIR"] = Dir.getwd
 
     # real-valued case:
-    ENV["PETSC_ARCH"] = arch_real
-    args_real = ["--prefix=#{prefix}/#{arch_real}",
+    if build.without? "complex"
+      ENV["PETSC_ARCH"] = arch_real
+      args_rc = ["--prefix=#{prefix}/#{arch_real}",
                  "--with-scalar-type=real",
                 ]
-    args_real << "--with-hypre-dir=#{oprefix("hypre")}" if build.with? "hypre"
-    args_real << "--with-sundials-dir=#{oprefix("sundials")}" if build.with? "sundials"
-    args_real << "--with-hwloc-dir=#{oprefix("hwloc")}" if build.with? "hwloc"
-    system "./configure", *(args + args_real)
-    system "make", "all"
-    if build.with? "check"
-      log_name = "make-check-" + arch_real + ".log"
-      system "make test 2>&1 | tee #{log_name}"
-      ohai `grep "Completed test examples" "#{log_name}"`.chomp
-      prefix.install "#{log_name}"
-    end
-    system "make", "install"
-
-    # complex-valued case:
-    ENV["PETSC_ARCH"] = arch_complex
-    args_cmplx = ["--prefix=#{prefix}/#{arch_complex}",
+      args_rc << "--with-hypre-dir=#{oprefix("hypre")}" if build.with? "hypre"
+      args_rc << "--with-sundials-dir=#{oprefix("sundials")}" if build.with? "sundials"
+      args_rc << "--with-hwloc-dir=#{oprefix("hwloc")}" if build.with? "hwloc"
+    else
+      # complex-valued case:
+      ENV["PETSC_ARCH"] = arch_complex
+      args_rc = ["--prefix=#{prefix}/#{arch_complex}",
                   "--with-scalar-type=complex",
-                 ]
-    system "./configure", *(args + args_cmplx)
+                ]
+    end
+
+    system "./configure", *(args + args_rc)
     system "make", "all"
     if build.with? "check"
-      log_name = "make-check-" + arch_complex + ".log"
+      log_name = "make-check.log"
       system "make test 2>&1 | tee #{log_name}"
       ohai `grep "Completed test examples" "#{log_name}"`.chomp
       prefix.install "#{log_name}"
