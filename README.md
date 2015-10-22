@@ -70,8 +70,9 @@ brew postinstall openssl
 ```
 brew tap davydden/dealiisuite
 
-# prioritize this tap over homebrew-science
-brew tap-pin davydden/dealiisuite
+# untill this PR https://github.com/Homebrew/homebrew/pull/43535 is merged,
+# we have a conflict with homebrew-science
+brew untap homebrew/science
 
 brew install hdf5 --with-mpi --c++11
 brew install hypre --with-mpi --without-check
