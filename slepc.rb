@@ -12,14 +12,19 @@ class Slepc < Formula
 
   deprecated_option "complex" => "with-complex"
 
-  option "with-complex", "Use complex version by default. Otherwise, real-valued version will be symlinked"
+  option "with-complex", "Build complex version by default. Otherwise, real-valued version will be built."
   option "without-check", "Skip run-time tests (not recommended)"
 
-  depends_on "petsc"
+  complexdep      = (build.with? "complex")      ? ["with-complex"]      : []
+  depends_on "petsc" => complexdep 
   depends_on :mpi => [:cc, :f90]
   depends_on :fortran
   depends_on :x11 => :optional
   depends_on "arpack" => [:recommended, "with-mpi"]
+
+  def petsc_options
+    Tab.for_formula(Formula["petsc"])
+  end
 
   def install
     ENV.deparallelize
@@ -33,17 +38,15 @@ class Slepc < Formula
     args << "--with-arpack-dir=#{Formula["arpack"].lib}" << "--with-arpack-flags=-lparpack,-larpack" if build.with? "arpack"
 
     # real
-    ENV["PETSC_DIR"] = "#{Formula["petsc"].opt_prefix}/#{petsc_arch_real}"
-    system "./configure", "--prefix=#{prefix}/#{petsc_arch_real}", *args
+    if petsc_options.without? "complex"
+      ENV["PETSC_DIR"] = "#{Formula["petsc"].opt_prefix}/#{petsc_arch_real}"
+      system "./configure", "--prefix=#{prefix}/#{petsc_arch_real}", *args
+    else
+      # complex
+      ENV["PETSC_DIR"] = "#{Formula["petsc"].opt_prefix}/#{petsc_arch_complex}"
+      system "./configure", "--prefix=#{prefix}/#{petsc_arch_complex}", *args
+    end
     system "make"
-    system "make", "test" if build.with? "check"
-    system "make", "install"
-
-    # complex
-    ENV["PETSC_DIR"] = "#{Formula["petsc"].opt_prefix}/#{petsc_arch_complex}"
-    system "./configure", "--prefix=#{prefix}/#{petsc_arch_complex}", *args
-    system "make"
-    # TODO: investigate why complex tests fail to run on Linuxbrew
     system "make", "test" if build.with? "check"
     system "make", "install"
 
