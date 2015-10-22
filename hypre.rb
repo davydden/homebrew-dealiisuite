@@ -95,8 +95,8 @@ class Hypre < Formula
           # Overriding makefile variables at the command line is unworkable
           # here because the LFLAGS variable must be overridden, and LFLAGS
           # contains other makefile variable substitutions.
-          lapack_flag = build.with?("openblas") ? "openblas" : "lapack"
-          inreplace "Makefile", "-lstdc++", "-lstdc++ -l#{lapack_flag}"
+          lapack_flag = BlasRequirement.ldflags(ENV["HOMEBREW_BLASLAPACK_LIB"],ENV["HOMEBREW_BLASLAPACK_NAMES"])
+          inreplace "Makefile", "-lstdc++", "-lstdc++ #{lapack_flag}"
 
           # Hack to excise Fortran examples from "make all"; they are still
           # in the "make fortran" target, thus making it easier to implement
