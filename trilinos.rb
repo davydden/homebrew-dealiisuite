@@ -59,7 +59,7 @@ class Trilinos < Formula
 
   # Experimental TPLs:
   #-depends_on "eigen"        => :recommended
-  depends_on "hypre"        => [:recommended] + mpidep # EpetraExt tests fail to compile
+  depends_on "hypre"        => [:recommended] + ((build.with? "mpi") ? [] : ["without-mpi"]) # EpetraExt tests fail to compile
   #-depends_on "glpk"         => :recommended
   depends_on "hdf5"         => [:recommended] + mpidep
   #-depends_on "tbb"          => :recommended # do NOT use as PETSc is not thread-safe anyway!
