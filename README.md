@@ -125,7 +125,8 @@ commands if you do any customisation of the commands listed hereafter.
 brew install bash-completion
 ```
 
-Before we can install the `deal.II` packages, Linuxbrew needs some basic packages
+Before we can install the `deal.II` packages, Linuxbrew needs some basic 
+packages
 ```bash
 brew install pkg-config
 brew install openssl && brew postinstall openssl
@@ -143,6 +144,15 @@ Should you not have installed the system `cmake` then you should install it now.
 brew install cmake --without-docs
 ```
 
+Should you wish to make use of `openmpi` instead of the system libraries, then 
+we need to first install a Java runtime environment as well
+```bash
+# Install the Java runtime environment
+sudo apt-get install default-jre
+# Install OpenMPI
+brew install openmpi --c++11
+```
+
 ## 5. Get this collection of formulae and install the deal.II suite
 Firstly we need to tap the various repositories from which to fetch the packages
 and build information.
@@ -157,9 +167,19 @@ Now you might optionally install `openblas` (should you not wish to use the
 brew install openblas
 ```
 
-Install deal.II and all of its (optional) dependencies
+The optional `boost` libraries can be configured with `C++11` support if you 
+have installed, or are willing to install, `openmpi`.
 ```bash
+# Boost configuration if OpenMPI has been installed
 brew install boost --with-mpi --c++11 --without-single
+```
+Otherwise this should not be selected (as `openmpi` is currently a dependency)
+```bash
+# Boost configuration if OpenMPI installation is not desired
+brew install boost --with-mpi --without-single
+```
+Now we can install all of the other (optional) dependencies of `deal.ii`
+```bash
 brew install hdf5 --with-mpi --c++11
 brew install hypre --with-mpi --without-check
 brew install metis
@@ -173,17 +193,23 @@ brew install slepc --without-check
 brew install p4est --without-check
 ```
 
-Installing `Trilinos` is very resource intensive (it consumes a lot of memory
+Installing `trilinos` is very resource intensive (it consumes a lot of memory 
   when linking, especially with `GCC`).
-It may be useful to limit the number of make jobs to lighten the memory load, at
+It may be useful to limit the number of make jobs to lighten the memory load, at 
 the expense of build time.
 ```bash
 HOMEBREW_MAKE_JOBS=2 brew install trilinos
 ```
 
-Finally build `deal.II`
+Finally the latest stable release of build `deal.II`
 ```bash
+# Latest stable release
 brew install dealii
+```
+or the developer version
+```bash
+# Developer version
+brew install dealii --HEAD
 ```
 
 # B. Mac OS-X
@@ -248,7 +274,7 @@ brew tap homebrew/science
 
 #### 4.1. With system BLAS/LAPACK
 ```bash
-brew install boost --c++11
+brew install boost --with-mpi --c++11
 brew install gsl
 brew install scalapack
 brew install mumps
@@ -278,7 +304,7 @@ brew install dealii
 
 #### 4.2. With OpenBLAS
 ```bash
-brew install boost --c++11
+brew install boost --with-mpi --c++11
 brew install gsl
 brew install openblas
 brew install scalapack --with-openblas
