@@ -212,7 +212,7 @@ class Trilinos < Formula
     if build.with? "mumps"
       args << "-DTPL_ENABLE_MUMPS:BOOL=ON"
       args << "-DMUMPS_LIBRARY_DIRS=#{Formula["mumps"].opt_lib}"
-      args << "-DMUMPS_LIBRARY_NAMES=dmumps;pord;mumps_common"
+      args << "-DMUMPS_LIBRARY_NAMES=dmumps;mumps_common;pord"
     end
 
     args << onoff("-DTPL_ENABLE_PETSC:BOOL=", false) #       (build.with? "petsc"))
