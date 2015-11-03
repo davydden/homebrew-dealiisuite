@@ -62,3 +62,17 @@ index ca945dd..1bf94e9 100644
  add_subdirectory(include)
  add_subdirectory(libparmetis)
  add_subdirectory(programs)
+ 
+diff --git a/libparmetis/CMakeLists.txt b/libparmetis/CMakeLists.txt
+index 9cfc8a7..dfc0125 100644
+--- a/libparmetis/CMakeLists.txt
++++ b/libparmetis/CMakeLists.txt
+@@ -5,7 +5,7 @@ file(GLOB parmetis_sources *.c)
+ # Create libparmetis
+ add_library(parmetis ${ParMETIS_LIBRARY_TYPE} ${parmetis_sources})
+ # Link with metis and MPI libraries.
+-target_link_libraries(parmetis metis ${MPI_LIBRARIES})
++target_link_libraries(parmetis metis ${MPI_LIBRARIES} "-lm")
+ set_target_properties(parmetis PROPERTIES LINK_FLAGS "${MPI_LINK_FLAGS}")
+ 
+ install(TARGETS parmetis
