@@ -42,7 +42,53 @@ For the full list of instructions as to how to install Linuxbrew, please see
 The instructions given here are what we personally consider to be the least
 invasive.
 
-## 1. Put to your .bash_profile or .bashrc
+For your convenience, the instructions that follow in the next few sections have 
+been compiled into a script that can be extracted from the 
+`installation_scripts` directory inside this repository or [downloaded](https://github.com/davydden/homebrew-dealiisuite/blob/master/installation_scripts/install_Ubuntu.sh), made executable through the command
+```bash
+chmod +x <path_to_script>/install_Ubuntu.sh
+```
+and run to install `deal.II` with minimal intervention.
+However, you **use this script at your own risk**.
+It will ask for the administrator password once up front in order to install 
+some essential build packages.
+Of course, you can modify the script to set any personal preferences that you 
+may have with respect to the installed packages.
+
+##  1. Install system packages
+Firstly there are some mandatory packages that are required for the build 
+process
+```bash
+# Essential build packages
+sudo apt-get install build-essential curl git m4 ruby texinfo libbz2-dev libcurl4-openssl-dev libexpat-dev libncurses-dev zlib1g-dev csh subversion 
+# Compilers
+sudo apt-get install gcc g++ gfortran
+```
+
+### 1.1. Install optional system packages
+Optional `MPI` packages:
+```bash
+# Use system MPI
+sudo apt-get install mpi-default-bin libopenmpi-dev
+```
+
+Optional `cmake` package:
+```bash
+# System CMake
+sudo apt-get install cmake
+```
+
+Optional `BLAS/LAPACK` packages:
+```bash
+# Extra packages for system blas/lapack
+sudo apt-get install libblas-dev liblapack-dev
+```
+
+## 2. Get and configure Linuxbrew
+
+### 2.1. Put to your .bash_profile or .bashrc
+These (or comparable) lines must be put into `.bash_profile` or `.bashrc` to set 
+the  installation path for Linuxbrew as well as certain environment variables.
 ```bash
 # Linuxbrew
 export HOMEBREW_PREFIX=~/.linuxbrew
@@ -51,10 +97,13 @@ export HOMEBREW_CACHE=~/Cache/linuxbrew
 export PATH="$HOMEBREW_PREFIX/bin:$PATH"
 export MANPATH="$HOMEBREW_PREFIX/share/man:$MANPATH"
 export INFOPATH="$HOMEBREW_PREFIX/share/info:$INFOPATH"
-
-## Enable bash completion
-if [ -f `brew --prefix`/etc/bash_completion ]; then
-    . `brew --prefix`/etc/bash_completion
+```
+You can also enable bash auto-completion if you install the `bash-completion`
+package.
+```bash
+## If possible, enable bash completion
+if [ -f $HOMEBREW_PREFIX/etc/bash_completion ]; then
+    . $HOMEBREW_PREFIX/etc/bash_completion
 fi
 ```
 The following lines are optional (dependent on whether you'll be using some
@@ -75,46 +124,9 @@ it will be used automatically.
 In order to use another library (such as Intel MKL), you need to fill out the
 above settings accordingly.
 
-## 2. Upgrade GCC to the 5.x series (may not be necessary on other versions of Ubuntu)
-```bash
-### Upgrade GCC to 5.x series
-sudo apt-get install linux-headers-$(uname -r)
-sudo add-apt-repository ppa:ubuntu-toolchain-r/test
-sudo apt-get update
-sudo apt-get dist-upgrade
-sudo apt-get install g++-5 gcc-5 gfortran-5
-sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-5 60  --slave /usr/bin/g++ g++ /usr/bin/g++-5  --slave /usr/bin/gfortran gfortran /usr/bin/gfortran-5
-### Manual check
-gfortran -v && g++ -v && gcc -v
-```
-
-##  3. Install packages
-Mandatory packages:
-```bash
-# Essential build packages
-sudo apt-get install build-essential curl git m4 ruby texinfo libbz2-dev libcurl4-openssl-dev libexpat-dev libncurses-dev zlib1g-dev csh subversion
-```
-
-### 3.1. Install optional system packages
-Optional MPI packages:
-```bash
-# Use system MPI
-sudo apt-get install mpi-default-bin libopenmpi-dev
-```
-
-Optional `BLAS/LAPACK` packages:
-```bash
-# Extra packages for system blas/lapack
-sudo apt-get install libblas-dev liblapack-dev
-```
-
-Optional `cmake` package:
-```bash
-# System CMake
-sudo apt-get install cmake
-```
-
-## 4. Get and configure Linuxbrew
+### 2.2 Install Linuxbrew and basic packages
+Now that the environmental variables have been set we can install Linuxbrew 
+itself.
 ```bash
 git clone https://github.com/Homebrew/linuxbrew.git $HOMEBREW_PREFIX
 ```
@@ -153,7 +165,7 @@ sudo apt-get install default-jre
 brew install openmpi --c++11
 ```
 
-## 5. Get this collection of formulae and install the deal.II suite
+## 3. Get this collection of formulae and install the deal.II suite
 Firstly we need to tap the various repositories from which to fetch the packages
 and build information.
 ```bash
@@ -178,7 +190,7 @@ Otherwise this should not be selected (as `openmpi` is currently a dependency)
 # Boost configuration if OpenMPI installation is not desired
 brew install boost --with-mpi --without-single
 ```
-Now we can install all of the other (optional) dependencies of `deal.ii`
+Now we can install all of the other (optional) dependencies of `deal.II`
 ```bash
 brew install hdf5 --with-mpi --c++11
 brew install hypre --with-mpi --without-check
@@ -201,12 +213,13 @@ the expense of build time.
 HOMEBREW_MAKE_JOBS=2 brew install trilinos
 ```
 
-Finally the latest stable release of build `deal.II`
+Finally you can build the latest stable release of build `deal.II`
 ```bash
 # Latest stable release
 brew install dealii
 ```
-or the developer version
+or the developer version (which may be necessary at this moment due to a bug in 
+  the configure script for `deal.II` 8.3.0)
 ```bash
 # Developer version
 brew install dealii --HEAD
@@ -222,7 +235,21 @@ For the full list of instructions as to how to install Homebrew, please see
 The instructions given here are what we personally consider to be the least
 invasive.
 
-## 1. Put to your .bash_profile or .bashrc
+##  1. Install external software
+Mandatory software which installs `clang`, the C++ compiler
+```
+xcode-select --install
+```
+You then "need" to accept the `xcode` licence
+```bash
+xcodebuild -license
+```
+
+## 2. Get and configure Homebrew
+
+### 2.1. Put to your .bash_profile or .bashrc
+These (or comparable) lines must be put into `.bash_profile` or `.bashrc` to set 
+the  installation path for Homebrew as well as certain environment variables.
 ```bash
 # Homebrew
 export HOMEBREW_PREFIX=~/.homebrew
@@ -231,18 +258,14 @@ export MANPATH="$HOMEBREW_PREFIX/share/man:$MANPATH"
 export INFOPATH="$HOMEBREW_PREFIX/share/info:$INFOPATH"
 
 ## Enable bash completion
-if [ -f `brew --prefix`/etc/bash_completion ]; then
-    . `brew --prefix`/etc/bash_completion
+if [ -f $HOMEBREW_PREFIX/etc/bash_completion ]; then
+    . $HOMEBREW_PREFIX/etc/bash_completion
 fi
 ```
 
-##  2. Install external software
-Mandatory software:
-```
-xcode-select --install
-```
-
-## 3. Get and configure Homebrew
+### 2.2 Install Homebrew and basic packages
+Now that the environmental variables have been set we can install Homebrew 
+itself.
 ```bash
 git clone https://github.com/Homebrew/homebrew.git $HOMEBREW_PREFIX
 ```
@@ -269,6 +292,9 @@ built against.
 So we can happily use it as a repository instead of this one and therefore
 recommend it
 ```bash
+# Untap this repository to prevent conflicting packages
+brew untap davydden/dealiisuite
+# Tap the more complete Homebrew-Science repository
 brew tap homebrew/science
 ```
 
@@ -393,8 +419,7 @@ ln -s `which gfortran` $HOMEBREW_PREFIX/bin/gfortran-`gfortran -dumpversion |cut
 
 Finally, Linuxbrew needs `openssl`
 ```bash
-brew install openssl
-brew postinstall openssl
+brew install openssl && brew postinstall openssl
 ```
 
 ## 3. Get this collection of formulae and install the deal.II suite
