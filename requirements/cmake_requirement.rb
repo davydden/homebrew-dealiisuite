@@ -12,7 +12,8 @@ class CmakeRequirement < Requirement
 
   satisfy :build_env => false do
     next unless which "cmake"
-    cmake_version = Utils.popen_read("cmake", "--version").split(" ").last
+    cmake_version = Utils.popen_read("cmake", "--version").split(" ")[2]
+    ohai "Detected CMake version " + cmake_version + " is lower than that required " + @version +". Fall back to brewed cmake..." if Version.new(cmake_version) < Version.new(@version)
     Version.new(cmake_version) >= Version.new(@version)
   end
 
