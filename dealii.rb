@@ -39,7 +39,7 @@ class Dealii < Formula
   depends_on "parmetis"     => :recommended if build.with? "mpi"
   depends_on "petsc"        => :recommended
   depends_on "slepc"        => :recommended
-  #-depends_on "suite-sparse" => :recommended
+  depends_on "suite-sparse" => :recommended
   #-depends_on "tbb"          => :recommended
   depends_on "trilinos"     => :recommended
 

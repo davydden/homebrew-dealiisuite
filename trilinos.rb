@@ -49,7 +49,7 @@ class Trilinos < Formula
   depends_on "parmetis"     => :recommended if build.with? "mpi"
   depends_on "scalapack"    => :recommended
   #-depends_on "scotch"       => :recommended
-  #-depends_on "suite-sparse" => :recommended
+  depends_on "suite-sparse" => :recommended
   #-depends_on "superlu"      => :recommended // Amesos2_Superlu_FunctionMap.hpp:83:14: error: no type named 'superlu_options_t' in namespace 'SLU'
   depends_on "superlu_dist" => [:recommended] if build.with? "parmetis"
 
