@@ -32,13 +32,26 @@ class P4est < Formula
     ENV["CPPFLAGS"] = "-DSC_LOG_PRIORITY=SC_LP_ESSENTIAL"
 
     ldflags = BlasRequirement.ldflags(ENV["HOMEBREW_BLASLAPACK_LIB"],ENV["HOMEBREW_BLASLAPACK_NAMES"])
+    args = ["--enable-mpi",
+            "--enable-shared",
+            "--disable-vtk-binary",
+            "BLAS_LIBS=#{ldflags}"
+           ]
 
-    system "./configure", "--enable-mpi",
-                          "--enable-shared",
-                          "--disable-vtk-binary",
-                          "BLAS_LIBS=#{ldflags}",
-                          "--prefix=#{prefix}"
+    # fast / release version:
+    args_fast = ["--prefix=#{prefix}/FAST"]
+    ENV["CFLAGS"] = "-O2"
+    system "./configure", *(args + args_fast)
+    system "make"
+    system "make", "check" if build.with? "check"
+    system "make", "install"
 
+    # slow / debug
+    args_debug = ["--prefix=#{prefix}/DEBUG",
+                  "--enable-debug"
+                 ]
+    ENV["CFLAGS"] = "-O0 -g"
+    system "./configure", *(args + args_debug)
     system "make"
     system "make", "check" if build.with? "check"
     system "make", "install"
