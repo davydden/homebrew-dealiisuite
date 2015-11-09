@@ -8,11 +8,51 @@
 # You use it at your own risk. 
 # We assume no liability for the accuracy, correctness, completeness, or usefulness of this script, nor for any sort of damages that using it may cause.
 
+# --------
+# SETTINGS
+# --------
+
+hbdir=~/.linuxbrew
+bashfile=~/.bashrc
+
+echo ""
+if [ $# -eq 0 ]; then
+  echo "Using default installation and file paths."
+fi
+
+# http://stackoverflow.com/questions/192249/how-do-i-parse-command-line-arguments-in-bash
+while [[ $# > 1 ]]; do
+  key="$1"
+
+  case $key in
+    -p|--prefix)
+      hbdir="$2"
+      shift # past argument
+    ;;
+    -b|--bashfile)
+      bashfile="$2"
+      shift # past argument
+    ;;
+    --default)
+      #hbdir=~/.linuxbrew
+      #bashfile=~/.bashrc
+    ;;
+    *)
+      echo "Unknown option. Exiting..."
+      exit 1
+    ;;
+  esac
+
+  shift # past argument or value
+done
+
+echo "Linuxbrew installation path: $hbdir"
+echo "Bash file: $bashfile"
+
 # -------------------------
 # REQUIRES USER INTERACTION
 # -------------------------
 
-bashfile=~/.bashrc
 echo ""
 echo "Do you want to add Homebrew/Linuxbrew and deal.II paths"
 echo "to $bashfile? [Y/n]:"
@@ -36,7 +76,7 @@ sudo -k # Safety first: Invalidate user timestep
 # --------------
 # LINUXBREW BASE
 # --------------
-export HOMEBREW_PREFIX=~/.linuxbrew
+export HOMEBREW_PREFIX=$hbdir
 git clone https://github.com/Homebrew/linuxbrew.git $HOMEBREW_PREFIX
 
 export HOMEBREW_LOGS=$HOMEBREW_PREFIX/_logs/linuxbrew
@@ -75,7 +115,7 @@ if [[ -e $bashfile ]]; then
 
     echo "" >> $bashfile
     echo "## === LINUXBREW ===" >> $bashfile
-    echo "HOMEBREW_PREFIX=~/.linuxbrew" >> $bashfile
+    echo "HOMEBREW_PREFIX=$hbdir" >> $bashfile
     echo "HOMEBREW_LOGS=\$HOMEBREW_PREFIX/_logs" >> $bashfile
     echo "HOMEBREW_CACHE=\$HOMEBREW_PREFIX/_cache" >> $bashfile
     echo "PATH=\"\$HOMEBREW_PREFIX/bin:\$PATH\"" >> $bashfile
