@@ -14,6 +14,7 @@
 
 hbdir=~/.linuxbrew
 bashfile=~/.bashrc
+useSystemLibs=true
 
 echo ""
 if [ $# -eq 0 ]; then
@@ -21,7 +22,7 @@ if [ $# -eq 0 ]; then
 fi
 
 # http://stackoverflow.com/questions/192249/how-do-i-parse-command-line-arguments-in-bash
-while [[ $# > 1 ]]; do
+while [[ $# > 0 ]]; do
   key="$1"
 
   case $key in
@@ -33,9 +34,8 @@ while [[ $# > 1 ]]; do
       bashfile="$2"
       shift # past argument
     ;;
-    --default)
-      #hbdir=~/.linuxbrew
-      #bashfile=~/.bashrc
+    -n|--no_system_libraries)
+      useSystemLibs=false
     ;;
     *)
       echo "Unknown option. Exiting..."
@@ -46,6 +46,13 @@ while [[ $# > 1 ]]; do
   shift # past argument or value
 done
 
+if [ "$useSystemLibs" = true ] ; then
+  echo "Using system libraries (GCC, MPI, CMake, BLAS/LAPACK)."
+else
+  echo "Will install all base libraries through Linuxbrew."
+fi
+
+echo ""
 echo "Linuxbrew installation path: $hbdir"
 echo "Bash file: $bashfile"
 
@@ -62,16 +69,23 @@ echo "You are about to be asked for your password so that "
 echo "essential system libraries can be installed."
 echo "After this, the rest of the build should be automatic."
 
-# ------------------------
-# GENERIC WITH SYSTEM BLAS
-# ------------------------
-sudo apt-get install \
-build-essential curl git m4 ruby texinfo libbz2-dev libcurl4-openssl-dev libexpat-dev libncurses-dev zlib1g-dev csh subversion \
-gcc g++ gfortran \
-mpi-default-bin libopenmpi-dev \
-cmake \
-libblas-dev liblapack-dev
-sudo -k # Safety first: Invalidate user timestep
+# -----------------------------
+# PREREQUISITE SYSTEM LIBRARIES
+# -----------------------------
+if [ "$useSystemLibs" = true ] ; then
+  sudo apt-get install \
+  build-essential curl git m4 ruby texinfo libbz2-dev libcurl4-openssl-dev libexpat-dev libncurses-dev zlib1g-dev csh subversion \
+  gcc g++ gfortran \
+  mpi-default-bin libopenmpi-dev \
+  cmake \
+  libblas-dev liblapack-dev
+else
+  sudo apt-get install \
+  build-essential curl git m4 ruby texinfo libbz2-dev libcurl4-openssl-dev libexpat-dev libncurses-dev zlib1g-dev csh subversion \
+  gcc g++ gfortran \
+  default-jre
+fi
+sudo -k # Safety first: Invalidate user timestamp
 
 # --------------
 # LINUXBREW BASE
@@ -89,10 +103,20 @@ brew install pkg-config && \
 brew install openssl && brew postinstall openssl && \
 brew install ruby
 
+if [ "$useSystemLibs" = false ] ; then
+  brew install xz gcc # Fixes issues installing Trilinos with GCC 4.8.4 (Fortran verification failure)
+  brew install openmpi --c++11 # Requires a Java Runtime
+  brew install cmake --without-docs # Currently fails with docs
+fi
+
 # -------------
 # DEAL.II SUITE
 # -------------
 brew tap davydden/dealiisuite
+
+if [ "$useSystemLibs" = false ] ; then
+  brew install openblas
+fi
 
 brew install boost --with-mpi --without-single && \
 brew install hdf5 --with-mpi --c++11 && \
