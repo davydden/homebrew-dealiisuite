@@ -45,6 +45,9 @@ class P4est < Formula
     system "make"
     system "make", "check" if build.with? "check"
     system "make", "install"
+    # Temporary workaround for library loading error (library not in path)
+    include.install_symlink Dir["#{prefix}/FAST/include/*h"]
+    lib.install_symlink Dir["#{prefix}/FAST/lib/*.*"]
 
     # slow / debug
     args_debug = ["--prefix=#{prefix}/DEBUG",
