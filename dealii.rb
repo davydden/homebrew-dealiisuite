@@ -54,8 +54,6 @@ class Dealii < Formula
       -DDEAL_II_COMPONENT_COMPAT_FILES=OFF
       -DDEAL_II_COMPONENT_EXAMPLES=ON
       -DDEAL_II_COMPONENT_MESH_CONVERTER=ON
-      -DDEAL_II_FORCE_BUNDLED_THREADS=OFF
-      -DDEAL_II_WITH_THREADS=OFF
     ]
     # constrain Cmake to look for libraries in homebrew's prefix
     args << "-DCMAKE_PREFIX_PATH=#{HOMEBREW_PREFIX}"
