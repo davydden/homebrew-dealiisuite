@@ -66,7 +66,7 @@ brew install petsc --without-check && \
 brew install arpack --with-mpi && \
 brew install slepc --without-check && \
 brew install p4est --without-check && \
-HOMEBREW_MAKE_JOBS=1 brew install trilinos && \
+HOMEBREW_MAKE_JOBS=1 brew install trilinos --without-fortran && \ # Build problem with Fortran
 brew install dealii --HEAD # Build problem related to C++11 detected by Trilinos and not deal.II 8.3.0
 
 if [[ -e $bashfile ]]; then
