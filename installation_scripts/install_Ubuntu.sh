@@ -93,8 +93,8 @@ sudo -k # Safety first: Invalidate user timestamp
 export HOMEBREW_PREFIX=$hbdir
 git clone https://github.com/Homebrew/linuxbrew.git $HOMEBREW_PREFIX
 
-export HOMEBREW_LOGS=$HOMEBREW_PREFIX/_logs/linuxbrew
-export HOMEBREW_CACHE=$HOMEBREW_PREFIX/_cache/linuxbrew
+export HOMEBREW_LOGS=$HOMEBREW_PREFIX/_logs
+export HOMEBREW_CACHE=$HOMEBREW_PREFIX/_cache
 export PATH="$HOMEBREW_PREFIX/bin:$PATH"
 export MANPATH="$HOMEBREW_PREFIX/share/man:$MANPATH"
 export INFOPATH="$HOMEBREW_PREFIX/share/info:$INFOPATH"
@@ -131,6 +131,7 @@ brew install arpack --with-mpi && \
 brew install slepc --without-check && \
 brew install p4est --without-check && \
 HOMEBREW_MAKE_JOBS=1 brew install trilinos --without-fortran && \
+brew install numdiff && \
 brew install dealii --HEAD # Build problem related to C++11 detected by Trilinos and not deal.II 8.3.0
 
 if [[ -e $bashfile ]]; then
