@@ -93,8 +93,8 @@ sudo -k # Safety first: Invalidate user timestamp
 export HOMEBREW_PREFIX=$hbdir
 git clone https://github.com/Homebrew/linuxbrew.git $HOMEBREW_PREFIX
 
-export HOMEBREW_LOGS=$HOMEBREW_PREFIX/_logs/linuxbrew
-export HOMEBREW_CACHE=$HOMEBREW_PREFIX/_cache/linuxbrew
+export HOMEBREW_LOGS=$HOMEBREW_PREFIX/_logs
+export HOMEBREW_CACHE=$HOMEBREW_PREFIX/_cache
 export PATH="$HOMEBREW_PREFIX/bin:$PATH"
 export MANPATH="$HOMEBREW_PREFIX/share/man:$MANPATH"
 export INFOPATH="$HOMEBREW_PREFIX/share/info:$INFOPATH"
