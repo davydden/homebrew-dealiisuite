@@ -1,8 +1,8 @@
 class Slepc < Formula
   desc "Scalable Library for Eigenvalue Computations"
   homepage "http://www.grycap.upv.es/slepc"
-  url "http://slepc.upv.es/download/download.php?filename=slepc-3.6.1.tar.gz"
-  sha256 "c0a3997347144b145ec6f783feadc5021428f05a965c3f285b2dafa9f84eb8a6"
+  url "http://slepc.upv.es/download/download.php?filename=slepc-3.6.2.tar.gz"
+  sha256 "2ab4311bed26ccf7771818665991b2ea3a9b15f97e29fd13911ab1293e8e65df"
 
   bottle do
     sha256 "707c11d73e213a83c5033159eb767b819eee9056f965a99c0d87fca0a549bf8f" => :yosemite
@@ -47,10 +47,13 @@ class Slepc < Formula
       system "./configure", "--prefix=#{prefix}/#{petsc_arch_complex}", *args
     end
     system "make"
-    system "make", "test" if build.with? "check"
+    if build.with? "check"
+      log_name = "make-test.log"
+      system "make test 2>&1 | tee #{log_name}"
+      ohai `grep "Completed test" "#{log_name}"`.chomp
+      prefix.install "#{log_name}"
+    end
     system "make", "install"
-
-    ohai "Test results are in ~/Library/Logs/Homebrew/slepc. Please check."
 
     # Link what we need.
     petsc_arch = ((build.include? "complex") ? petsc_arch_complex : petsc_arch_real)
@@ -61,11 +64,23 @@ class Slepc < Formula
     prefix.install_symlink "#{prefix}/#{petsc_arch}/conf"
     doc.install "docs/slepc.pdf", Dir["docs/*.htm"], "docs/manualpages" # They're not really man pages.
     pkgshare.install "share/slepc/datafiles"
+
+    # install some tutorials for use in test block
+    pkgshare.install "src/eps/examples/tutorials"
   end
 
   def caveats; <<-EOS.undent
     Set your SLEPC_DIR to #{prefix}/real or #{prefix}/complex.
     Fortran modules are in #{prefix}/real/include and #{prefix}/complex/include.
     EOS
+  end
+
+  test do
+    cp_r prefix/"share/slepc/tutorials", testpath
+    Dir.chdir("tutorials") do
+      system "mpicc", "ex1.c", "-I#{opt_include}", "-I#{Formula["petsc"].opt_include}", "-L#{Formula["petsc"].opt_lib}", "-lpetsc", "-L#{opt_lib}", "-lslepc", "-o", "ex1"
+      system "mpirun -np 3 ex1 2>&1 | tee ex1.out"
+      assert (identical?("output/ex1_1.out", "ex1.out"))
+    end
   end
 end

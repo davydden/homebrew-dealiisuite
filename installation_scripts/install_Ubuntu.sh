@@ -126,13 +126,19 @@ brew install parmetis && \
 brew install superlu_dist && \
 brew install scalapack --without-check && \
 brew install mumps && \
-brew install petsc --without-check && \
+brew install petsc && \
+brew test petsc && \
 brew install arpack --with-mpi && \
-brew install slepc --without-check && \
+brew install slepc && \
+brew test slepc && \
 brew install p4est --without-check && \
 HOMEBREW_MAKE_JOBS=1 brew install trilinos --without-fortran && \
 brew install numdiff && \
-brew install dealii --HEAD # Build problem related to C++11 detected by Trilinos and not deal.II 8.3.0
+brew install oce && \
+brew install dealii --HEAD && \
+brew test dealii
+
+# Note: install HEAD version of dealii as build problem related to C++11 detected by Trilinos and not deal.II 8.3.0
 
 if [[ -e $bashfile ]]; then
   if [[ (( $addHBpaths == "y" )) || (( $addHBpaths == "Y" )) || (( $addHBpaths == "Yes" )) || (( $addHBpaths == "yes" )) ]]; then

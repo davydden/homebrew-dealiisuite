@@ -4,8 +4,8 @@ require_relative "requirements/cmake_requirement"
 class Petsc < Formula
   desc "Scalable (parallel) solution of scientific applications modeled by partial differential equations"
   homepage "http://www.mcs.anl.gov/petsc/index.html"
-  url "http://ftp.mcs.anl.gov/pub/petsc/release-snapshots/petsc-lite-3.6.2.tar.gz"
-  sha256 "8902459bd566a9a1b79bee0bbc15bf6afe53c58fa95c4d89beb7e99e5ca9008e"
+  url "http://ftp.mcs.anl.gov/pub/petsc/release-snapshots/petsc-lite-3.6.3.tar.gz"
+  sha256 "2458956c876496f3c8160591324459be7c11f2e1ce09ad98347394c67a46d858"
   head "https://bitbucket.org/petsc/petsc", :using => :git
 
   bottle do
@@ -66,6 +66,7 @@ class Petsc < Formula
               --with-shared-libraries=1
               --with-pthread=0
               --with-openmp=0
+              --with-mpi=1
            ]
     args << ("--with-debugging=" + ((build.with? "debug") ? "1" : "0"))
 
