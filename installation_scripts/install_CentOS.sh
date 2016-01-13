@@ -113,7 +113,9 @@ fi
 # LINUXBREW BASE
 # --------------
 export HOMEBREW_PREFIX=$hbdir
-git clone https://github.com/Homebrew/linuxbrew.git $HOMEBREW_PREFIX
+if [[ ! -d $HOMEBREW_PREFIX ]]; then
+  git clone https://github.com/Homebrew/linuxbrew.git $HOMEBREW_PREFIX
+fi
 
 export HOMEBREW_LOGS=$HOMEBREW_PREFIX/_logs
 export HOMEBREW_CACHE=$HOMEBREW_PREFIX/_cache
@@ -162,10 +164,13 @@ if [ "$install_ruby" = true ]; then
   make install &> install.log
 fi
 
-secho "Make simlinks for GCC to make sure Linuxbrew picks it up..."
-ln -s `which gcc` $HOMEBREW_PREFIX/bin/gcc-`gcc -dumpversion |cut -d. -f1,2`
-ln -s `which g++` $HOMEBREW_PREFIX/bin/g++-`g++ -dumpversion |cut -d. -f1,2`
-ln -s `which gfortran` $HOMEBREW_PREFIX/bin/gfortran-`gcc -dumpversion |cut -d. -f1,2`
+# if we already created symlinks, do not re-do them
+if [[ ! -e $HOMEBREW_PREFIX/bin/gcc-`gcc -dumpversion |cut -d. -f1,2` ]]; then
+  secho "Make simlinks for GCC to make sure Linuxbrew picks it up..."
+  ln -s `which gcc` $HOMEBREW_PREFIX/bin/gcc-`gcc -dumpversion |cut -d. -f1,2`
+  ln -s `which g++` $HOMEBREW_PREFIX/bin/g++-`g++ -dumpversion |cut -d. -f1,2`
+  ln -s `which gfortran` $HOMEBREW_PREFIX/bin/gfortran-`gcc -dumpversion |cut -d. -f1,2`
+fi
 
 brew install pkg-config && \
 brew install openssl && brew postinstall openssl
@@ -197,6 +202,7 @@ brew install slepc --without-check --without-arpack && \
 brew install p4est --without-check && \
 HOMEBREW_MAKE_JOBS=2 brew install trilinos --without-fortran && \
 brew install numdiff && \
+brew install oce && \
 brew install dealii --without-arpack --HEAD # Build problem related to C++11 detected by Trilinos and not deal.II 8.3.0
 
 if [[ -e $bashfile ]]; then

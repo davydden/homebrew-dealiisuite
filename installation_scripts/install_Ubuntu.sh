@@ -4,8 +4,8 @@
 # DISCLAIMER
 # Adapted from http://michal.kosmulski.org/computing/shell-scripts/
 # -----------------------------------------------------------------
-# This script come without warranty of any kind. 
-# You use it at your own risk. 
+# This script come without warranty of any kind.
+# You use it at your own risk.
 # We assume no liability for the accuracy, correctness, completeness, or usefulness of this script, nor for any sort of damages that using it may cause.
 
 # see http://stackoverflow.com/a/29394504/888478
@@ -114,7 +114,9 @@ sudo -k # Safety first: Invalidate user timestamp
 # LINUXBREW BASE
 # --------------
 export HOMEBREW_PREFIX=$hbdir
-git clone https://github.com/Homebrew/linuxbrew.git $HOMEBREW_PREFIX
+if [[ ! -d $HOMEBREW_PREFIX ]]; then
+  git clone https://github.com/Homebrew/linuxbrew.git $HOMEBREW_PREFIX
+fi
 
 export HOMEBREW_LOGS=$HOMEBREW_PREFIX/_logs
 export HOMEBREW_CACHE=$HOMEBREW_PREFIX/_cache
