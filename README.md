@@ -42,25 +42,25 @@ For the full list of instructions as to how to install Linuxbrew, please see
 The instructions given here are what we personally consider to be the least
 invasive.
 
-For your convenience, the instructions that follow in the next few sections have 
-been compiled into a script that can be extracted from the 
-`installation_scripts` directory inside this repository or [downloaded](https://github.com/davydden/homebrew-dealiisuite/blob/master/installation_scripts/install_Ubuntu.sh), made executable through the command
+For your convenience, the instructions that follow in the next few sections have
+been compiled into a script that can be extracted from the
+`installation_scripts` directory inside this repository or [downloaded](https://raw.githubusercontent.com/davydden/homebrew-dealiisuite/master/installation_scripts/install_Ubuntu.sh), made executable through the command
 ```bash
 chmod +x <path_to_script>/install_Ubuntu.sh
 ```
 and run to install `deal.II` with minimal intervention.
 However, you **use this script at your own risk**.
-It will ask for the administrator password once up front in order to install 
+It will ask for the administrator password once up front in order to install
 some essential build packages.
-Of course, you can modify the script to set any personal preferences that you 
+Of course, you can modify the script to set any personal preferences that you
 may have with respect to the installed packages.
 
 ##  1. Install system packages
-Firstly there are some mandatory packages that are required for the build 
+Firstly there are some mandatory packages that are required for the build
 process
 ```bash
 # Essential build packages
-sudo apt-get install build-essential curl git m4 ruby texinfo libbz2-dev libcurl4-openssl-dev libexpat-dev libncurses-dev zlib1g-dev csh subversion 
+sudo apt-get install build-essential curl git m4 ruby texinfo libbz2-dev libcurl4-openssl-dev libexpat-dev libncurses-dev zlib1g-dev csh subversion
 # Compilers
 sudo apt-get install gcc g++ gfortran
 ```
@@ -87,7 +87,7 @@ sudo apt-get install libblas-dev liblapack-dev
 ## 2. Get and configure Linuxbrew
 
 ### 2.1. Put to your .bash_profile or .bashrc
-These (or comparable) lines must be put into `.bash_profile` or `.bashrc` to set 
+These (or comparable) lines must be put into `.bash_profile` or `.bashrc` to set
 the  installation path for Linuxbrew as well as certain environment variables.
 ```bash
 # Linuxbrew
@@ -125,7 +125,7 @@ In order to use another library (such as Intel MKL), you need to fill out the
 above settings accordingly.
 
 ### 2.2 Install Linuxbrew and basic packages
-Now that the environmental variables have been set we can install Linuxbrew 
+Now that the environmental variables have been set we can install Linuxbrew
 itself.
 ```bash
 git clone https://github.com/Homebrew/linuxbrew.git $HOMEBREW_PREFIX
@@ -137,7 +137,7 @@ commands if you do any customisation of the commands listed hereafter.
 brew install bash-completion
 ```
 
-Before we can install the `deal.II` packages, Linuxbrew needs some basic 
+Before we can install the `deal.II` packages, Linuxbrew needs some basic
 packages
 ```bash
 brew install pkg-config
@@ -156,7 +156,7 @@ Should you not have installed the system `cmake` then you should install it now.
 brew install cmake --without-docs
 ```
 
-Should you wish to make use of `openmpi` instead of the system libraries, then 
+Should you wish to make use of `openmpi` instead of the system libraries, then
 we need to first install a Java runtime environment as well
 ```bash
 # Install the Java runtime environment
@@ -179,7 +179,7 @@ Now you might optionally install `openblas` (should you not wish to use the
 brew install openblas
 ```
 
-The optional `boost` libraries can be configured with `C++11` support if you 
+The optional `boost` libraries can be configured with `C++11` support if you
 have installed, or are willing to install, `openmpi`.
 ```bash
 # Boost configuration if OpenMPI has been installed
@@ -205,9 +205,9 @@ brew install slepc --without-check
 brew install p4est --without-check
 ```
 
-Installing `trilinos` is very resource intensive (it consumes a lot of memory 
+Installing `trilinos` is very resource intensive (it consumes a lot of memory
   when linking, especially with `GCC`).
-It may be useful to limit the number of make jobs to lighten the memory load, at 
+It may be useful to limit the number of make jobs to lighten the memory load, at
 the expense of build time.
 ```bash
 HOMEBREW_MAKE_JOBS=2 brew install trilinos
@@ -218,7 +218,7 @@ Finally you can build the latest stable release of build `deal.II`
 # Latest stable release
 brew install dealii
 ```
-or the developer version (which may be necessary at this moment due to a bug in 
+or the developer version (which may be necessary at this moment due to a bug in
   the configure script for `deal.II` 8.3.0)
 ```bash
 # Developer version
@@ -248,7 +248,7 @@ xcodebuild -license
 ## 2. Get and configure Homebrew
 
 ### 2.1. Put to your .bash_profile or .bashrc
-These (or comparable) lines must be put into `.bash_profile` or `.bashrc` to set 
+These (or comparable) lines must be put into `.bash_profile` or `.bashrc` to set
 the  installation path for Homebrew as well as certain environment variables.
 ```bash
 # Homebrew
@@ -264,7 +264,7 @@ fi
 ```
 
 ### 2.2 Install Homebrew and basic packages
-Now that the environmental variables have been set we can install Homebrew 
+Now that the environmental variables have been set we can install Homebrew
 itself.
 ```bash
 git clone https://github.com/Homebrew/homebrew.git $HOMEBREW_PREFIX
@@ -361,6 +361,17 @@ brew install dealii --with-openblas
 
 # C. CentOS cluster
 
+For your convenience, the instructions that follow in the next few sections have
+been compiled into a script that can be extracted from the
+`installation_scripts` directory inside this repository or [downloaded](https://raw.githubusercontent.com/davydden/homebrew-dealiisuite/master/installation_scripts/install_CentOS.sh), made executable through the command
+```bash
+chmod +x <path_to_script>/install_CentOS.sh
+```
+and run to install `deal.II` with minimal intervention.
+However, you **use this script at your own risk**.
+Of course, you can modify the script to set any personal preferences that you
+may have with respect to the installed packages.
+
 Below is the detailed instruction to make it work with CentOS cluster and native
 `openmpi`, `gcc`, `cmake`, `git`, `MKL`.
 
@@ -368,7 +379,7 @@ Below is the detailed instruction to make it work with CentOS cluster and native
 ```bash
 # CentOS related:
 module load gcc
-module load openmpi/1.7.2-gcc
+module load openmpi/1.8.3-gcc
 module load mkl
 module load cmake
 module load git/2.2.1
@@ -426,7 +437,8 @@ brew install openssl && brew postinstall openssl
 ```bash
 brew tap davydden/dealiisuite
 
-brew install hdf5 --with-mpi --c++11
+brew install boost --with-mpi --without-single
+brew install hdf5 --with-mpi --c++11 --without-cxx
 brew install hypre --with-mpi --without-check
 brew install metis
 brew install parmetis
@@ -434,9 +446,10 @@ brew install superlu_dist
 brew install scalapack --without-check
 brew install mumps
 brew install petsc --without-check
-brew install arpack --with-mpi
-brew install slepc --without-check
+brew install slepc --without-check --without-arpack
 brew install p4est --without-check
 brew install trilinos
-brew install dealii --HEAD
+brew install numdiff
+brew install oce
+brew install dealii --without-arpack --HEAD
 ```
