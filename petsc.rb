@@ -25,7 +25,7 @@ class Petsc < Formula
   depends_on :fortran
   depends_on :x11 => :optional
   depends_on CmakeRequirement => ["2.8",:build]
-  depends_on BlasRequirement => :fortran_single
+  depends_on BlasRequirement
 
   #-depends_on "superlu43"    => :recommended
   depends_on "superlu_dist" => :recommended

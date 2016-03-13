@@ -17,11 +17,7 @@ class Hypre < Formula
 
   depends_on :fortran => :recommended
   depends_on :mpi => [:cc, :cxx, :f90, :f77, :recommended]
-  if build.with? :fortran
-    depends_on BlasRequirement  => :fortran_single
-  else
-    depends_on BlasRequirement
-  end
+  depends_on BlasRequirement
 
   option "without-check", "Skip build-time tests (not recommended)"
   option "with-superlu", "Use internal SuperLU routines"

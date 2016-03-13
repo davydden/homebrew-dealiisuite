@@ -21,7 +21,7 @@ class P4est < Formula
 
   depends_on :mpi => [:cc, :cxx, :f77, :f90]
   depends_on :fortran
-  depends_on BlasRequirement => :fortran_single
+  depends_on BlasRequirement
 
   def install
     ENV["CC"]       = ENV["MPICC"]

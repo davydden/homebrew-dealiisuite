@@ -33,11 +33,7 @@ class Trilinos < Formula
   depends_on CmakeRequirement => "2.8"
   depends_on "pkg-config"   => :build
 
-  if build.with? :fortran
-    depends_on BlasRequirement => :fortran_single
-  else
-    depends_on BlasRequirement
-  end
+  depends_on BlasRequirement
 
   mpidep      = (build.with? "mpi")      ? ["with-mpi"]      : []
 
