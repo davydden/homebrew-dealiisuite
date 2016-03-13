@@ -4,8 +4,8 @@ require_relative "requirements/cmake_requirement"
 class Trilinos < Formula
   desc "Algorithms for the solution of large-scale, complex multi-physics engineering and scientific problems"
   homepage "http://trilinos.sandia.gov"
-  url "https://trilinos.org/oldsite/download/files/trilinos-12.4.2-Source.tar.bz2"
-  sha256 "78225d650ddcfc453b40cddb99b2fbb79998ff6359f9090154727b916812a58e"
+  url "https://github.com/trilinos/Trilinos/archive/trilinos-release-12-6-1.tar.gz"
+  sha256 "176fd6e778aa86d13405bd6663d61cc11e6f69c01be7e4bd5a7a6d8243c55b63"
   head "https://software.sandia.gov/trilinos/repositories/publicTrilinos", :using => :git
   revision 1
 
@@ -312,65 +312,3 @@ index 963eb71..998cd02 100644
 +  REQUIRED_HEADERS umfpack.h amd.h SuiteSparse_config.h
    REQUIRED_LIBS_NAMES umfpack amd
    )
-diff --git a/packages/mesquite/CMakeLists.txt b/packages/mesquite/CMakeLists.txt
-index 7cbf084..3865e24 100644
---- a/packages/mesquite/CMakeLists.txt
-+++ b/packages/mesquite/CMakeLists.txt
-@@ -25,7 +25,7 @@ ELSE()
-   #
-
-   TRIBITS_PACKAGE(Mesquite DISABLE_STRONG_WARNINGS)
--  SET( ${PACKAGE_NAME}_ENABLE_TESTS ${Trilinos_ENABLE_TESTS} )
-+  # SET( ${PACKAGE_NAME}_ENABLE_TESTS ${Trilinos_ENABLE_TESTS} )
-
- ENDIF()
-
-diff --git a/packages/didasko/examples/hypre/hypre_Helpers.cpp b/packages/didasko/examples/hypre/hypre_Helpers.cpp
-index 1bf1b2c..793e218 100644
---- a/packages/didasko/examples/hypre/hypre_Helpers.cpp
-+++ b/packages/didasko/examples/hypre/hypre_Helpers.cpp
-@@ -60,7 +60,7 @@
-
- using Teuchos::RCP;
- using Teuchos::rcp;
--EpetraExt_HypreIJMatrix::EpetraExt_HypreIJMatrix* newHypreMatrix(const int N)
-+EpetraExt_HypreIJMatrix* newHypreMatrix(const int N)
- {
-   HYPRE_IJMatrix Matrix;
-   int ierr = 0;
-@@ -117,7 +117,7 @@ EpetraExt_HypreIJMatrix::EpetraExt_HypreIJMatrix* newHypreMatrix(const int N)
-   return RetMat;
- }
-
--Epetra_CrsMatrix::Epetra_CrsMatrix* newCrsMatrix(int N){
-+Epetra_CrsMatrix* newCrsMatrix(int N){
-
-   Epetra_MpiComm Comm(MPI_COMM_WORLD);
-
-@@ -138,7 +138,7 @@ Epetra_CrsMatrix::Epetra_CrsMatrix* newCrsMatrix(int N){
-   return Matrix;
- }
-
--Epetra_CrsMatrix::Epetra_CrsMatrix* GetCrsMatrix(EpetraExt_HypreIJMatrix *Matrix)
-+Epetra_CrsMatrix* GetCrsMatrix(EpetraExt_HypreIJMatrix *Matrix)
- {
-   int N = Matrix->NumGlobalRows();
-   Epetra_CrsMatrix* TestMat = new Epetra_CrsMatrix(Copy, Matrix->RowMatrixRowMap(), Matrix->RowMatrixColMap(), N, false);
-diff --git a/packages/didasko/examples/hypre/hypre_Helpers.hpp b/packages/didasko/examples/hypre/hypre_Helpers.hpp
-index 930719e..70ac59f 100644
---- a/packages/didasko/examples/hypre/hypre_Helpers.hpp
-+++ b/packages/didasko/examples/hypre/hypre_Helpers.hpp
-@@ -51,11 +51,11 @@
-
- #include <string>
-
--EpetraExt_HypreIJMatrix::EpetraExt_HypreIJMatrix* newHypreMatrix(int N);
-+EpetraExt_HypreIJMatrix* newHypreMatrix(int N);
-
--Epetra_CrsMatrix::Epetra_CrsMatrix* newCrsMatrix(int N);
-+Epetra_CrsMatrix* newCrsMatrix(int N);
-
--Epetra_CrsMatrix::Epetra_CrsMatrix* GetCrsMatrix(EpetraExt_HypreIJMatrix &Matrix);
-+Epetra_CrsMatrix* GetCrsMatrix(EpetraExt_HypreIJMatrix &Matrix);
-
- bool EquivalentVectors(Epetra_MultiVector &X, Epetra_MultiVector &Y, double tol);
