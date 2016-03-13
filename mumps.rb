@@ -15,9 +15,10 @@ class Mumps < Formula
     sha256 "d3de4a5d9a53c417139472a511211531bf5ce2b6b856622444d68629c15fb918" => :mountain_lion
   end
 
+  option "with-mkl", "Build with Scalapack from MKL"
   depends_on :mpi => [:cc, :cxx, :f90, :recommended]
   if build.with? "mpi"
-    depends_on "scalapack"
+    depends_on "scalapack" if build.without? "mkl"
   end
   depends_on "metis"    => :optional if build.without? "mpi"
   depends_on "parmetis" => :optional if build.with? "mpi"
@@ -97,9 +98,14 @@ class Mumps < Formula
       make_args += ["CC=#{ENV["MPICC"]} -fPIC",
                     "FC=#{ENV["MPIFC"]} -fPIC",
                     "FL=#{ENV["MPIFC"]} -fPIC",
-                    "SCALAP=-L#{Formula["scalapack"].opt_lib} -lscalapack",
                     "INCPAR=", # Let MPI compilers fill in the blanks.
                     "LIBPAR=$(SCALAP)"]
+     if build.with? "mkl"
+       ldflags_sc = BlasRequirement.ldflags(ENV["HOMEBREW_BLASLAPACK_LIB"],ENV["HOMEBREW_SCALAPACK_NAMES"],"")
+       make_args += ["SCALAP=#{ldflags_sc}"]
+     else
+       make_args += ["SCALAP=-L#{Formula["scalapack"].opt_lib} -lscalapack"]
+     end
     else
       make_args += ["CC=#{ENV["CC"]} -fPIC",
                     "FC=#{ENV["FC"]} -fPIC",
