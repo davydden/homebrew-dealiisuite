@@ -4,9 +4,8 @@ require_relative "requirements/cmake_requirement"
 class Dealii < Formula
   desc "open source finite element library"
   homepage "http://www.dealii.org"
-  url "https://github.com/dealii/dealii/releases/download/v8.3.0/dealii-8.3.0.tar.gz"
-  sha256 "4ddf72632eb501e1c814e299f32fc04fd680d6fda9daff58be4209e400e41779"
-  revision 2
+  url "https://github.com/dealii/dealii/releases/download/v8.4.0/dealii-8.4.0.tar.gz"
+  sha256 "36a20e097a03f17b557e11aad1400af8c6252d25f7feca40b611d5fc16d71990"
 
   bottle do
     cellar :any
@@ -62,7 +61,7 @@ class Dealii < Formula
     args << "-DDEAL_II_COMPONENT_DOCUMENTATION=ON" if build.with? "doxygen"
 
     blas_inc   = ENV["HOMEBREW_BLASLAPACK_INC"]
-    blas_processed = BlasRequirement.full_path(ENV["HOMEBREW_BLASLAPACK_LIB"],ENV["HOMEBREW_BLASLAPACK_NAMES"],";")
+    blas_processed = BlasRequirement.full_path(ENV["HOMEBREW_BLASLAPACK_LIB"],ENV["HOMEBREW_BLASLAPACK_NAMES"],ENV["HOMEBREW_BLASLAPACK_EXTRA"],";")
     args << "-DLAPACK_FOUND=true"
     args << "-DLAPACK_INCLUDE_DIRS=#{blas_inc}"
     args << "-DLAPACK_LIBRARIES=#{blas_processed}"

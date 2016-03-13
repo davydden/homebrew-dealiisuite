@@ -25,7 +25,7 @@ class Petsc < Formula
   depends_on :fortran
   depends_on :x11 => :optional
   depends_on CmakeRequirement => ["2.8",:build]
-  depends_on BlasRequirement
+  depends_on BlasRequirement => :fortran_single
 
   #-depends_on "superlu43"    => :recommended
   depends_on "superlu_dist" => :recommended
@@ -95,7 +95,7 @@ class Petsc < Formula
     args << "--with-mumps-dir=#{oprefix("mumps")}" if build.with? "mumps"
     args << "--with-x=0" if build.without? "x11"
 
-    blas_processed = BlasRequirement.full_path(ENV["HOMEBREW_BLASLAPACK_LIB"],ENV["HOMEBREW_BLASLAPACK_NAMES"]," ")
+    blas_processed = BlasRequirement.full_path(ENV["HOMEBREW_BLASLAPACK_LIB"],ENV["HOMEBREW_BLASLAPACK_NAMES"],ENV["HOMEBREW_BLASLAPACK_EXTRA"]," ")
     args << "--with-blas-lapack-lib=#{blas_processed}"
 
     # configure fails if those vars are set differently.

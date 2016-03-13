@@ -26,7 +26,7 @@ class Arpack < Formula
     cc_args = (build.with? :mpi) ? ["F77=#{ENV["MPIF77"]}"] : []
     args = cc_args + ["--disable-dependency-tracking", "--prefix=#{libexec}"]
     args << "--enable-mpi" if build.with? :mpi
-    ldflags = BlasRequirement.ldflags(ENV["HOMEBREW_BLASLAPACK_LIB"],ENV["HOMEBREW_BLASLAPACK_NAMES"])
+    ldflags = BlasRequirement.ldflags(ENV["HOMEBREW_BLASLAPACK_LIB"],ENV["HOMEBREW_BLASLAPACK_NAMES"],ENV["HOMEBREW_BLASLAPACK_EXTRA"])
     args << "--with-blas=#{ldflags}"
 
     # HEAD version does not contain generated configure scirpt

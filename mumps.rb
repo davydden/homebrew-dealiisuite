@@ -106,7 +106,7 @@ class Mumps < Formula
                     "FL=#{ENV["FC"]} -fPIC"]
     end
 
-    ldflags    = BlasRequirement.ldflags(ENV["HOMEBREW_BLASLAPACK_LIB"],ENV["HOMEBREW_BLASLAPACK_NAMES"])
+    ldflags    = BlasRequirement.ldflags(ENV["HOMEBREW_BLASLAPACK_LIB"],ENV["HOMEBREW_BLASLAPACK_NAMES"],ENV["HOMEBREW_BLASLAPACK_EXTRA"])
     make_args << "LIBBLAS=#{ldflags}"
 
     ENV.deparallelize # Build fails in parallel on Mavericks.

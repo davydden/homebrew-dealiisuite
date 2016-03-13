@@ -27,6 +27,7 @@ class Oce < Formula
     # cmake_args = std_cmake_args
     cmake_args = %W[
       -DCMAKE_BUILD_TYPE=Release
+      -DOCE_DISABLE_X11=ON
       ]
     cmake_args << "-DOCE_INSTALL_PREFIX:STRING=#{prefix}"
     cmake_args << "-DOCE_COPY_HEADERS_BUILD:BOOL=ON"

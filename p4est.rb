@@ -21,7 +21,7 @@ class P4est < Formula
 
   depends_on :mpi => [:cc, :cxx, :f77, :f90]
   depends_on :fortran
-  depends_on BlasRequirement
+  depends_on BlasRequirement => :fortran_single
 
   def install
     ENV["CC"]       = ENV["MPICC"]
@@ -31,7 +31,7 @@ class P4est < Formula
     ENV["CFLAGS"]   = "-O2"
     ENV["CPPFLAGS"] = "-DSC_LOG_PRIORITY=SC_LP_ESSENTIAL"
 
-    ldflags = BlasRequirement.ldflags(ENV["HOMEBREW_BLASLAPACK_LIB"],ENV["HOMEBREW_BLASLAPACK_NAMES"])
+    ldflags = BlasRequirement.ldflags(ENV["HOMEBREW_BLASLAPACK_LIB"],ENV["HOMEBREW_BLASLAPACK_NAMES"],ENV["HOMEBREW_BLASLAPACK_EXTRA"])
     args = ["--enable-mpi",
             "--enable-shared",
             "--disable-vtk-binary",
