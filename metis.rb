@@ -27,12 +27,13 @@ class Metis < Formula
   end
 
   test do
+    cp_r share, testpath
     ["4elt", "copter2", "mdual"].each do |g|
-      system "#{bin}/graphchk", "#{share}/metis/graphs/#{g}.graph"
-      system "#{bin}/gpmetis", "#{share}/metis/graphs/#{g}.graph", "2"
-      system "#{bin}/ndmetis", "#{share}/metis/graphs/#{g}.graph"
+      system "#{bin}/graphchk", "#{testpath}/share/metis/graphs/#{g}.graph"
+      system "#{bin}/gpmetis", "#{testpath}/share/metis/graphs/#{g}.graph", "2"
+      system "#{bin}/ndmetis", "#{testpath}/share/metis/graphs/#{g}.graph"
     end
-    system "#{bin}/gpmetis", "#{share}/metis/graphs/test.mgraph", "2"
-    system "#{bin}/mpmetis", "#{share}/metis/graphs/metis.mesh", "2"
+    system "#{bin}/gpmetis", "#{testpath}/share/metis/graphs/test.mgraph", "2"
+    system "#{bin}/mpmetis", "#{testpath}/share/metis/graphs/metis.mesh", "2"
   end
 end
