@@ -119,6 +119,8 @@ if [ "$useMKL" = true ] ; then
   export HOMEBREW_BLASLAPACK_EXTRA="pthread;m" #;dl"
   export HOMEBREW_BLASLAPACK_LIB="${MKLROOT}/lib"
   export HOMEBREW_BLASLAPACK_INC="${MKLROOT}/include"
+  #  -L${MKLROOT}/lib -Wl,-rpath,${MKLROOT}/lib -lmkl_scalapack_lp64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lmkl_blacs_mpich_lp64 -lpthread -lm -ldl
+  export HOMEBREW_SCALAPACK_NAMES="mkl_scalapack_lp64;mkl_blacs_mpich_lp64"
 fi
 
 # check if we have recent enough ruby, otherwise build ourselves
@@ -163,7 +165,11 @@ brew install pkg-config && \
 brew install openssl && brew postinstall openssl
 
 brew install gcc --without-multilib
-brew install openmpi --c++11 # Requires a Java Runtime
+#if [ "$useMKL" = true ] ; then
+#  brew install mpich
+#else
+  brew install openmpi --c++11 # Requires a Java Runtime
+#fi
 brew install cmake
 
 # -------------
@@ -177,9 +183,12 @@ brew tap davydden/dealiisuite
 
 brew install boost --with-mpi --without-single && \
 brew install hdf5 --with-mpi --c++11 && \
+brew test hdf5 && \
 brew install hypre --env=std && \
 brew install metis && \
+brew test metis && \
 brew install parmetis && \
+brew test parmetis && \
 brew install superlu_dist && \
 brew test superlu_dist && \
 brew install scalapack --env=std --without-check && \
@@ -192,9 +201,11 @@ brew install slepc --env=std && \
 brew test slepc && \
 brew install p4est --env=std && \
 brew install suite-sparse --env=std && \
-HOMEBREW_MAKE_JOBS=2 brew install trilinos --env=std && \
+brew install trilinos --env=std && \
+brew test trilinos && \
 brew install numdiff && \
 brew install oce --env=std && \
+brew test oce && \
 brew install tbb --env=std && \
 brew install netcdf --with-cxx-compat --with-fortran --env=std && \
 brew install muparser --env=std && \
@@ -204,7 +215,6 @@ brew install dealii --env=std
 # brew test trilinos && \
 # brew test arpack
 # scalapack tests
-# scalapack from MKL
 
 if [[ -e $bashfile ]]; then
   if [[ (( $addHBpaths == "y" )) || (( $addHBpaths == "Y" )) || (( $addHBpaths == "Yes" )) || (( $addHBpaths == "yes" )) ]]; then
