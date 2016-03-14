@@ -127,6 +127,7 @@ class Trilinos < Formula
     args << "-DBLAS_LIBRARY_DIRS=#{blas_lib}"
     args << "-DLAPACK_LIBRARY_NAMES=#{blas_names}"
     args << "-DLAPACK_LIBRARY_DIRS=#{blas_lib}"
+    ENV.prepend "LDFLAGS", "-Wl,-rpath,#{blas_lib}" if blas_lib != ""
 
     args << "-DTrilinos_ASSERT_MISSING_PACKAGES=OFF" if build.head?
 
