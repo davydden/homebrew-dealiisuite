@@ -35,11 +35,30 @@ class Parmetis < Formula
   end
 
   def install
-    ENV["LDFLAGS"] = "-L#{Formula["metis"].lib} -lmetis -lm"
+    # ENV["LDFLAGS"] = "-L#{Formula["metis"].lib} -lmetis -lm"
+    args = %W[
+      -DCMAKE_VERBOSE_MAKEFILE=1
+      -DCMAKE_BUILD_TYPE=Release
+      -DCMAKE_INSTALL_PREFIX=#{prefix}
+      -DSHARED=1
+      -DOPENMP=0
+      -DCMAKE_FIND_FRAMEWORK=LAST
+      -Wno-dev      
+      -DCMAKE_INSTALL_RPATH:STRING=#{lib}
+      -DCMAKE_INSTALL_RPATH_USE_LINK_PATH:BOOL=ON
+      -DGKLIB_PATH=../metis/GKlib
+      -DMETIS_PATH=#{Formula["metis"].opt_prefix}
+      -DCMAKE_C_COMPILER=mpicc
+      -DCMAKE_CXX_COMPILER=mpicxx
+    ]
 
-    system "make", "config", "prefix=#{prefix}", "shared=1"
-    system "make", "install"
-    pkgshare.install "Graphs" # Sample data for test
+    mkdir "_build" do
+      system "cmake", "..", *args
+      system "make"
+      system "make", "install"
+
+      pkgshare.install "../Graphs" # Sample data for test
+    end
   end
 
   test do

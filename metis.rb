@@ -17,13 +17,27 @@ class Metis < Formula
 
   def install
     ENV.universal_binary if build.universal?
-    make_args = ["shared=1", "prefix=#{prefix}"]
-    make_args << "openmp=0"
-    system "make", "config", *make_args
-    system "make", "install"
+    args = %W[
+      -DCMAKE_VERBOSE_MAKEFILE=1
+      -DCMAKE_BUILD_TYPE=Release
+      -DCMAKE_INSTALL_PREFIX=#{prefix}
+      -DSHARED=1
+      -DOPENMP=0
+      -DCMAKE_FIND_FRAMEWORK=LAST
+      -Wno-dev      
+      -DCMAKE_INSTALL_RPATH:STRING=#{lib}
+      -DCMAKE_INSTALL_RPATH_USE_LINK_PATH:BOOL=ON
+      -DGKLIB_PATH=../GKlib
+    ]
 
-    (share / "metis").install "graphs"
-    doc.install "manual"
+    mkdir "_build" do
+      system "cmake", "..", *args
+      system "make"
+      system "make", "install"
+
+      (share / "metis").install "../graphs"
+      doc.install "../manual"
+    end
   end
 
   test do
