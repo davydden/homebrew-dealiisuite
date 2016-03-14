@@ -17,6 +17,7 @@ class Petsc < Formula
   option "without-check", "Skip build-time tests (not recommended)"
   option "with-complex", "Build complex version of PETSc"
   option "with-debug", "Build debug version"
+  option "with-mkl", "Build with MKL provided Scalapack"
 
   deprecated_option "complex" => "with-complex"
   deprecated_option "debug"   => "with-debug"
@@ -31,8 +32,12 @@ class Petsc < Formula
   depends_on "superlu_dist" => :recommended
   depends_on "metis"        => :recommended
   depends_on "parmetis"     => :recommended
-  depends_on "scalapack"    => :recommended
-  depends_on "mumps"        => :recommended # mumps is built with mpi by default
+  if build.with? "mkl"
+    depends_on "mumps"        => ["with-mkl",:recommended]
+  else
+    depends_on "scalapack"    => :recommended
+    depends_on "mumps"        => :recommended # mumps is built with mpi by default
+  end
   depends_on "hypre"        => :recommended
   #-depends_on "sundials"     => ["with-mpi", :recommended]
   depends_on "hdf5"         => ["with-mpi", :recommended]
@@ -91,7 +96,14 @@ class Petsc < Formula
     args << "--with-hdf5-dir=#{oprefix("hdf5")}" if build.with? "hdf5"
     args << "--with-metis-dir=#{oprefix("metis")}" if build.with? "metis"
     args << "--with-parmetis-dir=#{oprefix("parmetis")}" if build.with? "parmetis"
-    args << "--with-scalapack-dir=#{oprefix("scalapack")}" if build.with? "scalapack"
+    if build.with? "mkl"
+      ldflags_sc = BlasRequirement.ldflags(ENV["HOMEBREW_BLASLAPACK_LIB"],ENV["HOMEBREW_SCALAPACK_NAMES"],"")
+      scalap_inc  = ENV["HOMEBREW_BLASLAPACK_INC"]
+      args << "--with-scalapack-include=#{scalap_inc}"
+      args << "--with-scalapack-lib=#{ldflags_sc}"
+    else
+      args << "--with-scalapack-dir=#{oprefix("scalapack")}" if build.with? "scalapack"
+    end
     args << "--with-mumps-dir=#{oprefix("mumps")}" if build.with? "mumps"
     args << "--with-x=0" if build.without? "x11"
 
