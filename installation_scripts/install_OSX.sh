@@ -196,7 +196,7 @@ brew install mumps --env=std && \
 brew test mumps && \
 brew install petsc --env=std && \
 brew test petsc && \
-brew install arpack --with-mpi --env=std && \
+brew install arpack --with-mpi --env=std --without-check && \
 brew install slepc --env=std && \
 brew test slepc && \
 brew install p4est --env=std && \
