@@ -37,8 +37,8 @@ class SuperluDist < Formula
       DSUPERLULIB  = $(DSuperLUroot)/lib/libsuperlu_dist.a
       BLASDEF      = -DUSE_VENDOR_BLAS
       BLASLIB      = #{blaslib}
-      METISLIB     = -L#{Formula["metis"].opt_lib} -lmetis
-      PARMETISLIB  = -L#{Formula["parmetis"].opt_lib} -lparmetis
+      METISLIB     = -L#{Formula["metis"].opt_lib} -Wl,-rpath,#{Formula["metis"].opt_lib} -lmetis
+      PARMETISLIB  = -L#{Formula["parmetis"].opt_lib} -Wl,-rpath,#{Formula["parmetis"].opt_lib} -lparmetis
       FLIBS        =
       LIBS         = $(DSUPERLULIB) $(BLASLIB) $(PARMETISLIB) $(METISLIB)
       ARCH         = ar
