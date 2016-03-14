@@ -14,6 +14,7 @@ class Oce < Formula
   #-conflicts_with "opencascade", :because => "OCE is a fork for patches/improvements/experiments over OpenCascade"
 
   #-option "without-opencl", "Build without OpenCL support"
+  option "without-x11", "Build without X11 support"
 
   depends_on CmakeRequirement => ["2.8",:build]
   #-depends_on "freetype"
@@ -27,10 +28,10 @@ class Oce < Formula
     # cmake_args = std_cmake_args
     cmake_args = %W[
       -DCMAKE_BUILD_TYPE=Release
-      -DOCE_DISABLE_X11=ON
       ]
     cmake_args << "-DOCE_INSTALL_PREFIX:STRING=#{prefix}"
     cmake_args << "-DOCE_COPY_HEADERS_BUILD:BOOL=ON"
+    cmake_args << "-DOCE_DISABLE_X11=ON" if build.without? "x11"
     #cmake_args << "-DOCE_DRAW:BOOL=ON"
     cmake_args << "-DOCE_MULTITHREAD_LIBRARY:STRING=TBB" if build.with? "tbb"
     # cmake_args << "-DFREETYPE_INCLUDE_DIRS=#{Formula["freetype"].opt_include}/freetype2"
@@ -60,6 +61,8 @@ class Oce < Formula
   end
 
   test do
-    "1\n"==`CASROOT=#{share}/oce-#{version} #{bin}/DRAWEXE -v -c \"pload ALL\"`
+    if build.with? "x11"
+      "1\n"==`CASROOT=#{share}/oce-#{version} #{bin}/DRAWEXE -v -c \"pload ALL\"`
+    end
   end
 end
