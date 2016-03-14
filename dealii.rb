@@ -31,8 +31,8 @@ class Dealii < Formula
   #-depends_on "doxygen"      => :optional # installation error: CMake Error at doc/doxygen/cmake_install.cmake:31 (file)
   depends_on "hdf5"         => [:recommended] + mpidep
   depends_on "metis"        => :recommended
-  #-depends_on "muparser"     => :recommended if MacOS.version != :mountain_lion # Undefined symbols for architecture x86_64
-  #-depends_on "netcdf"       => [:recommended, "with-fortran", "with-cxx-compat"]
+  depends_on "muparser"     => :recommended if MacOS.version != :mountain_lion # Undefined symbols for architecture x86_64
+  depends_on "netcdf"       => [:recommended, "with-fortran", "with-cxx-compat"]
   depends_on "numdiff"      => :recommended
   depends_on "oce"  => :recommended
   depends_on "p4est"        => :recommended if build.with? "mpi"
@@ -40,7 +40,7 @@ class Dealii < Formula
   depends_on "petsc"        => :recommended
   depends_on "slepc"        => :recommended
   depends_on "suite-sparse" => :recommended
-  #-depends_on "tbb"          => :recommended
+  depends_on "tbb"          => :recommended
   depends_on "trilinos"     => :recommended
 
   needs :cxx11
