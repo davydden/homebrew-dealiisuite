@@ -3,8 +3,8 @@ require_relative "requirements/blas_requirement"
 class Arpack < Formula
   desc "ARPACK is a collection of Fortran77 subroutines designed to solve large scale eigenvalue problems."
   homepage "https://github.com/opencollab/arpack-ng"
-  url "https://github.com/opencollab/arpack-ng/archive/3.2.0.tar.gz"
-  sha256 "ce6de85d8de6ae3a741fb9d6169c194ff1b2ffdab289f7af8e41d71bb7818cbb"
+  url "https://github.com/opencollab/arpack-ng/archive/3.3.0.tar.gz"
+  sha256 "ad59811e7d79d50b8ba19fd908f92a3683d883597b2c7759fdcc38f6311fe5b3"
   head "https://github.com/opencollab/arpack-ng.git"
 
   bottle do
@@ -13,8 +13,7 @@ class Arpack < Formula
     sha256 "2ea9e43da77b36845c044e4d9d95b1e0b7fe1f4a18bd3ff4c5ff715c1fab23de" => :mountain_lion
   end
 
-  # TODO: enable with 3.3.0
-  # option "without-check", "skip tests (not recommended)"
+  option "without-check", "skip tests (not recommended)"
 
   depends_on :fortran
   depends_on :mpi => [:optional, :f77]
@@ -29,9 +28,9 @@ class Arpack < Formula
     ldflags = BlasRequirement.ldflags(ENV["HOMEBREW_BLASLAPACK_LIB"],ENV["HOMEBREW_BLASLAPACK_NAMES"],ENV["HOMEBREW_BLASLAPACK_EXTRA"])
     args << "--with-blas=#{ldflags}"
 
-    # HEAD version does not contain generated configure scirpt
+    # since 3.3.0 Arpack does not contain generated configure scirpt
     # must bootstrap first:
-    system "./bootstrap" if build.head?
+    system "./bootstrap"
 
     system "./configure", *args
     system "make"
