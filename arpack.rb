@@ -19,6 +19,8 @@ class Arpack < Formula
   depends_on :mpi => [:optional, :f77]
   depends_on BlasRequirement => :fortran_single
 
+  patch :DATA
+
   def install
     ENV.m64 if MacOS.prefer_64_bit?
 
@@ -51,3 +53,20 @@ class Arpack < Formula
     end
   end
 end
+
+__END__
+diff --git a/PARPACK/SRC/MPI/pdlamch10.f b/PARPACK/SRC/MPI/pdlamch10.f
+index 6571da9..2882c2e 100644
+--- a/PARPACK/SRC/MPI/pdlamch10.f
++++ b/PARPACK/SRC/MPI/pdlamch10.f
+@@ -86,8 +86,8 @@
+           TEMP = TEMP1
+       END IF
+ *
+-      PDLAMCH = TEMP
++      PDLAMCH10 = TEMP
+ *
+-*     End of PDLAMCH
++*     End of PDLAMCH10
+ *
+       END
