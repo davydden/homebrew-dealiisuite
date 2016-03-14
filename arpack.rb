@@ -15,6 +15,9 @@ class Arpack < Formula
 
   option "without-check", "skip tests (not recommended)"
 
+  #-depends_on "autoconf" => :build
+  #-depends_on "automake" => :build
+
   depends_on :fortran
   depends_on :mpi => [:optional, :f77]
   depends_on BlasRequirement => :fortran_single
@@ -22,7 +25,7 @@ class Arpack < Formula
   patch :DATA
 
   def install
-    ENV.m64 if MacOS.prefer_64_bit?
+    #-ENV.m64 if MacOS.prefer_64_bit?
 
     cc_args = (build.with? :mpi) ? ["F77=#{ENV["MPIF77"]}"] : []
     args = cc_args + ["--disable-dependency-tracking", "--prefix=#{libexec}"]
