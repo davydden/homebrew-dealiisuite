@@ -204,15 +204,16 @@ brew install suite-sparse --env=std && \
 brew install trilinos --env=std && \
 brew test trilinos && \
 brew install numdiff && \
-brew install oce --env=std && \
+brew install oce --env=std --without-x11 && \
 brew test oce && \
 brew install tbb --env=std && \
 brew install netcdf --with-cxx-compat --with-fortran --env=std && \
+brew test netcdf && \
 brew install muparser --env=std && \
-brew install dealii --env=std
+brew install dealii --env=std && \
+brew test dealii
 
 # TODO:
-# brew test trilinos && \
 # brew test arpack
 # scalapack tests
 
