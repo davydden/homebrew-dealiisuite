@@ -20,6 +20,10 @@ require "requirement"
 #   -Wl,--no-as-needed -L${MKLROOT}/lib/intel64 -lmkl_gf_lp64 -lmkl_core -lmkl_sequential -lpthread -lm -ldl
 #                                                 ^^^^^^^^^^^  instead of lmkl_intel_lp64
 #
+# The workaround is to add the following fortran flags: -ff2c -fno-second-underscore  when used with GNU Fortran, see
+#   https://software.intel.com/en-us/forums/intel-math-kernel-library/topic/613015#comment-1864003
+#   and kKnown Limitation related to COMPLEX number functions in https://software.intel.com/en-us/articles/intel-mkl-111-release-notes
+#
 #
 class BlasRequirement < Requirement
   fatal true
