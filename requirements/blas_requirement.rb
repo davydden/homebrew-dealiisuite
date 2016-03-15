@@ -16,6 +16,11 @@ require "requirement"
 #
 # These variables also cover less compilcated cases (e.g. system-provided blas/lapack, veclibfort or openblas)
 #
+# TODO: Note that the list of Fortran libraries is a bit different. Link advisor on Linux with GNU fortran results in
+#   -Wl,--no-as-needed -L${MKLROOT}/lib/intel64 -lmkl_gf_lp64 -lmkl_core -lmkl_sequential -lpthread -lm -ldl
+#                                                 ^^^^^^^^^^^  instead of lmkl_intel_lp64
+#
+#
 class BlasRequirement < Requirement
   fatal true
   # on OSX -lblas and -llapack should work OOB.
