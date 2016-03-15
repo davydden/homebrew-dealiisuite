@@ -28,6 +28,7 @@ class Arpack < Formula
     #-ENV.m64 if MacOS.prefer_64_bit?
 
     cc_args = (build.with? :mpi) ? ["F77=#{ENV["MPIF77"]}"] : []
+    cc_args << "FFLAGS=-ff2c -fno-second-underscore"
     args = cc_args + ["--disable-dependency-tracking", "--prefix=#{libexec}"]
     args << "--enable-mpi" if build.with? :mpi
     ldflags = BlasRequirement.ldflags(ENV["HOMEBREW_BLASLAPACK_LIB"],ENV["HOMEBREW_BLASLAPACK_NAMES"],ENV["HOMEBREW_BLASLAPACK_EXTRA"])
