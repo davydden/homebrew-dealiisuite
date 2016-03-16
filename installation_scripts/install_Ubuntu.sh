@@ -124,6 +124,7 @@ fi
 export HOMEBREW_PREFIX=$hbdir
 if [[ ! -d $HOMEBREW_PREFIX ]]; then
   git clone https://github.com/Homebrew/linuxbrew.git $HOMEBREW_PREFIX
+  git reset --hard ff7c44bf5766b8ab02c7e67cce64a3fba8b2f316
 fi
 
 export HOMEBREW_LOGS=$HOMEBREW_PREFIX/_logs
