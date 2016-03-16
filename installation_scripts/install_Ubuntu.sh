@@ -41,6 +41,7 @@ becho() {
 hbdir=~/.linuxbrew
 bashfile=~/.bashrc
 useSystemLibs=true
+useMKL=false
 
 if [ $# -eq 0 ]; then
   secho "Using default installation and file paths."
@@ -61,6 +62,9 @@ while [[ $# > 0 ]]; do
     ;;
     -n|--no_system_libraries)
       useSystemLibs=false
+    ;;
+    -m|--mkl)
+      useMKL=true
     ;;
     *)
       becho "Unknown option. Exiting..."
@@ -90,6 +94,9 @@ read addHBpaths
 # -----------------------------
 # PREREQUISITE SYSTEM LIBRARIES
 # -----------------------------
+
+# assume that if we run it once, we should have everything installed
+if [[ ! -d $hbdir ]]; then
 secho "Prerequisite system libraries"
 echo "You are about to be asked for your password so that "
 echo "essential system libraries can be installed."
@@ -109,6 +116,7 @@ else
   default-jre > /dev/null
 fi
 sudo -k # Safety first: Invalidate user timestamp
+fi
 
 # --------------
 # LINUXBREW BASE
@@ -124,9 +132,53 @@ export PATH="$HOMEBREW_PREFIX/bin:$PATH"
 export MANPATH="$HOMEBREW_PREFIX/share/man:$MANPATH"
 export INFOPATH="$HOMEBREW_PREFIX/share/info:$INFOPATH"
 
+if [ "$useMKL" = true ] ; then
+  secho "Use MKL..."
+  echo -e "Before proceeding, make sure \033[0;92mMKLROOT\033[0m is set."
+  echo "Otherwise terminate the script (Ctrl+C), run equivalent of"
+  echo -e "\033[1;37m . ~/intel/bin/compilervars.sh --arch intel64 -platform linux\033[0m"
+  echo "and rerun the script again. Press any key when ready..."
+  read
+fi
+
+if [ "$useMKL" = true ] ; then
+  export HOMEBREW_BLASLAPACK_NAMES="mkl_gf_lp64;mkl_sequential;mkl_core"
+  export HOMEBREW_BLASLAPACK_EXTRA="pthread;m;dl"
+  #export HOMEBREW_BLASLAPACK_NAMES="mkl_intel_lp64;mkl_sequential;mkl_core"
+  #export HOMEBREW_BLASLAPACK_EXTRA="pthread;m"
+  #export MKL_THREADING_LAYER=MKL_THREADING_SEQUENTIAL
+  #export HOMEBREW_BLASLAPACK_NAMES="mkl_rt"
+  #export HOMEBREW_BLASLAPACK_EXTRA="pthread;m;dl"
+  export HOMEBREW_BLASLAPACK_LIB="${MKLROOT}/lib/intel64"
+  export HOMEBREW_BLASLAPACK_INC="${MKLROOT}/include"
+  export HOMEBREW_SCALAPACK_NAMES="mkl_scalapack_lp64;mkl_blacs_openmpi_lp64"
+fi
+
+# check if we have recent enough ruby, otherwise build ourselves
+install_ruby=false
+secho "Check ruby version..."
+if builtin command -v ruby > /dev/null; then
+  ruby_version="$(ruby -e 'print RUBY_VERSION')"
+  # due to require_relative bug in 1.9.2. up the min version to
+  ruby_min=2.0.0
+  if [ "$(version "$ruby_version")" -lt "$(version "$ruby_min")" ]; then
+     install_ruby=true
+     echo "$ruby_version is less than $ruby_min , required by Linuxbrew !"
+  else
+    echo "Found ruby $ruby_version"
+  fi
+else
+  echo "Did not find ruby"
+  install_ruby=true
+fi
+
 brew install pkg-config && \
-brew install openssl && brew postinstall openssl && \
-brew install ruby
+brew install openssl && brew postinstall openssl
+
+if [ "$install_ruby" = true ]; then
+  brew install ruby
+fi
+
 
 if [ "$useSystemLibs" = false ] ; then
   # brew install xz gcc # Fixes issues installing Trilinos with GCC 4.8.4 (Fortran verification failure) [Fortran in Trilinos currently disabled by default]
@@ -143,27 +195,41 @@ if [ "$useSystemLibs" = false ] ; then
   brew install openblas
 fi
 
+# TODO:
+# fix petsc --with-mkl, then enable --with-mkl in MUMPS
+
+# temporary hack
+export LD_LIBRARY_PATH="$HOMEBREW_PREFIX/lib:$LD_LIBRARY_PATH"
+
 brew install boost --with-mpi --without-single && \
 brew install hdf5 --with-mpi --c++11 && \
-brew install hypre --with-mpi --without-check && \
+brew test hdf5 && \
+brew install hypre && \
 brew install metis && \
+brew test metis && \
 brew install parmetis && \
+brew test parmetis
 brew install superlu_dist && \
-brew install scalapack --without-check && \
+brew test superlu_dist && \
+brew install scalapack && \
 brew install mumps && \
+brew test mumps && \
 brew install petsc && \
 brew test petsc && \
 brew install arpack --with-mpi && \
+brew test arpack && \
 brew install slepc && \
 brew test slepc && \
-brew install p4est --without-check && \
-HOMEBREW_MAKE_JOBS=1 brew install trilinos --without-fortran && \
+brew install p4est && \
+brew install suite-sparse && \
+HOMEBREW_MAKE_JOBS=1 brew install trilinos && \
+brew test trilinos && \
 brew install numdiff && \
-brew install oce && \
-brew install dealii --HEAD && \
+brew install oce --without-x11 && \
+brew test oce && \
+brew install dealii --without-netcdf --without-tbb --without-muparser && \
 brew test dealii
 
-# Note: install HEAD version of dealii as build problem related to C++11 detected by Trilinos and not deal.II 8.3.0
 
 if [[ -e $bashfile ]]; then
   if [[ (( $addHBpaths == "y" )) || (( $addHBpaths == "Y" )) || (( $addHBpaths == "Yes" )) || (( $addHBpaths == "yes" )) ]]; then

@@ -147,7 +147,7 @@ class Dealii < Formula
       end
     end
     # take step-54 to check opencascade
-    if false #build.with? "oce"
+    if build.with? "oce"
       ohai "running step-54:"
       cp_r prefix/"examples/step-54", testpath
       Dir.chdir("step-54") do
