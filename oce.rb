@@ -2,8 +2,8 @@ require_relative "requirements/cmake_requirement"
 
 class Oce < Formula
   homepage "https://github.com/tpaviot/oce"
-  url "https://github.com/tpaviot/oce/archive/OCE-0.17.tar.gz"
-  sha256 "9ab0dc2a2d125b46cef458b56c6d171dfe2218d825860d616c5ab17994b8f74d"
+  url "https://github.com/tpaviot/oce/archive/OCE-0.17.1.tar.gz"
+  sha256 "b1ff0cb8cf31339bbb30ac7ed2415d376b9b75810279d2f497e115f08c090928"
 
   bottle do
     sha256 "75932d64aab68b7fad6c27a365cee5158924d311f9fbe789c063379b87759a2d" => :yosemite
@@ -45,7 +45,10 @@ class Oce < Formula
     cmake_args << "-DOCE_COPY_HEADERS_BUILD:BOOL=ON"
     cmake_args << "-DOCE_DISABLE_X11=ON" if build.without? "x11"
     #cmake_args << "-DOCE_DRAW:BOOL=ON"
-    cmake_args << "-DOCE_MULTITHREAD_LIBRARY:STRING=TBB" if build.with? "tbb"
+    cmake_args << "-DOCE_DRAW:BOOL=OFF"
+    cmake_args << "-DOCE_MODEL:BOOL=ON"
+    thr = (build.with? "tbb") ? "TBB" : "NONE"
+    cmake_args << "-DOCE_MULTITHREAD_LIBRARY:STRING=#{thr}"
     # cmake_args << "-DFREETYPE_INCLUDE_DIRS=#{Formula["freetype"].opt_include}/freetype2"
 
     cmake_args << "-DOCE_VISUALISATION=OFF" # Build visualization components.
