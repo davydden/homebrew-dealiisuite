@@ -86,13 +86,17 @@ read addHBpaths
 # PREREQUISITE SYSTEM LIBRARIES
 # -----------------------------
 if [ "$useMKL" = true ] ; then
-  secho "Use MKL..."
+  secho "Use Intel Math Kernel Library."
   echo -e "Before proceeding, make sure \033[0;92mMKLROOT\033[0m is set."
   echo "Otherwise terminate the script (Ctrl+C), run equivalent of"
   echo -e "\033[1;37mexport MKLROOT=/opt/intel/mkl\033[0m"
   #echo -e "\033[1;37m. /opt/intel/mkl/bin/mklvars.sh intel64 lp64\033[0m if you use GNU Fortran compiler or"
   #echo -e "\033[1;37m. /opt/intel/mkl/bin/mklvars.sh intel64 mod lp64\033[0m if you use Intel Fortran compiler"
   echo "and rerun the script again. Press any key when ready..."
+  echo ""
+  wecho "The following ScaLAPCK routines fail with MKL:"
+  echo -e "\033[1;37mxssep, xcsep, xsgsep, xcgsep, xssyevr, xcheevr, xshseqr\033[0m"
+  echo "see https://software.intel.com/en-us/forums/intel-math-kernel-library/topic/613015#comment-1864021"
   read
 else
   secho "Use framework Acceleate blas/lapack."
