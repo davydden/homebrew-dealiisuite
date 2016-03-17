@@ -32,10 +32,8 @@ class Scalapack < Formula
       -DCMAKE_BUILD_TYPE:STRING=Release
     ]
     # Accelerate uses the f2c/f77 complex return type conventions and so ScaLAPACK must be built with the -ff2c option. (see http://comments.gmane.org/gmane.comp.mathematics.elemental.devel/627)
-    # TODO: add this to mac
-    # args << "-DCMAKE_Fortran_FLAGS=-ff2c -fno-second-underscore"
-    #args << "-DCMAKE_Fortran_FLAGS=-ff2c -fno-second-underscore -O3 -fPIC -march=native -ffast-math -funroll-loops"
-    #args << "-DCMAKE_Fortran_FLAGS=-g"
+    # same applied to MKL
+    args << "-DCMAKE_Fortran_FLAGS=-ff2c -fno-second-underscore" if OS.mac?
 
     ldflags = BlasRequirement.ldflags(ENV["HOMEBREW_BLASLAPACK_LIB"],ENV["HOMEBREW_BLASLAPACK_NAMES"],ENV["HOMEBREW_BLASLAPACK_EXTRA"])
     args += ["-DBLAS_LIBRARIES:STRING=#{ldflags}", "-DLAPACK_LIBRARIES:STRING=#{ldflags}"]

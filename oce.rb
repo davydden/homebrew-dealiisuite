@@ -27,8 +27,20 @@ class Oce < Formula
   def install
     # cmake_args = std_cmake_args
     cmake_args = %W[
-      -DCMAKE_BUILD_TYPE=Release
       ]
+    # be conservative since 6.9 has problems with clang if -O2
+    # see http://tracker.dev.opencascade.org/print_bug_page.php?bug_id=26042
+    if OS.mac?
+      ENV.append_to_cflags "-g"
+      ENV["HOMEBREW_OPTIMIZATION_LEVEL"] = "g"
+      cmake_args << "-DCMAKE_BUILD_TYPE=Debug"
+      cmake_args << "-DOCE_BUILD_TYPE:STRING=Debug"
+      cmake_args << "-DOCE_DATAEXCHANGE:BOOL=ON"
+      cmake_args << "-DOCE_OSX_USE_COCOA:BOOL=ON"
+    else
+      cmake_args << "-DCMAKE_BUILD_TYPE=Release"
+    end
+
     cmake_args << "-DOCE_INSTALL_PREFIX:STRING=#{prefix}"
     cmake_args << "-DOCE_COPY_HEADERS_BUILD:BOOL=ON"
     cmake_args << "-DOCE_DISABLE_X11=ON" if build.without? "x11"

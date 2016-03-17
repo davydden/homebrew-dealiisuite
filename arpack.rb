@@ -28,8 +28,9 @@ class Arpack < Formula
     #-ENV.m64 if MacOS.prefer_64_bit?
 
     cc_args = (build.with? :mpi) ? ["F77=#{ENV["MPIF77"]}"] : []
-    # TODO: add this to mac
-    # cc_args << "FFLAGS=-ff2c -fno-second-underscore"
+    # Accelerate uses the f2c/f77 complex return type conventions and so ScaLAPACK (and Arpack?) must be built with the -ff2c option. (see http://comments.gmane.org/gmane.comp.mathematics.elemental.devel/627)
+    # same applied to MKL
+    cc_args << "FFLAGS=-ff2c -fno-second-underscore" if OS.mac?
     args = cc_args + ["--disable-dependency-tracking", "--prefix=#{libexec}"]
     args << "--enable-mpi" if build.with? :mpi
     ldflags = BlasRequirement.ldflags(ENV["HOMEBREW_BLASLAPACK_LIB"],ENV["HOMEBREW_BLASLAPACK_NAMES"],ENV["HOMEBREW_BLASLAPACK_EXTRA"])

@@ -86,6 +86,11 @@ class BlasRequirement < Requirement
     return res
   end
 
+  # Auxilary function which retunrs true if MKL libs are identified in @p blas_names
+  def self.is_mkl?(blas_names)
+    return blas_names.include? "mkl"
+  end
+
   # A static function to create compiler flags
   def self.cflags(blas_inc)
     return blas_inc != "" ? "-I#{blas_inc}"  : ""

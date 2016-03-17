@@ -129,11 +129,12 @@ class Trilinos < Formula
     args << "-DLAPACK_LIBRARY_DIRS=#{blas_lib}"
     ENV.prepend "LDFLAGS", "-Wl,-rpath,#{blas_lib}" if blas_lib != ""
 
-    # TODO: check that it's MKL
-    args << "-DTPL_ENABLE_MKL:BOOL=ON"
-    args << "-DMKL_LIBRARY_DIRS:FILEPATH=#{blas_lib}"
-    args << "-DMKL_LIBRARY_NAMES=#{blas_names}"
-    args << "-DMKL_INCLUDE_DIRS=#{blas_inc}"
+    if BlasRequirement.is_mkl?(blas_names)
+      args << "-DTPL_ENABLE_MKL:BOOL=ON"
+      args << "-DMKL_LIBRARY_DIRS:FILEPATH=#{blas_lib}"
+      args << "-DMKL_LIBRARY_NAMES=#{blas_names}"
+      args << "-DMKL_INCLUDE_DIRS=#{blas_inc}"
+    end
 
     args << "-DTrilinos_ASSERT_MISSING_PACKAGES=OFF" if build.head?
 
@@ -257,10 +258,11 @@ class Trilinos < Formula
     args << onoff("-DTPL_ENABLE_X11:BOOL=",         (build.with? "x11"))
 
     args << onoff("-DTrilinos_ENABLE_Fortran=",     (build.with? "fortran"))
-    #if build.with? "fortran"
-    #  libgfortran = `$FC --print-file-name libgfortran.a`.chomp
-    #  ENV.append "LDFLAGS", "-L#{File.dirname libgfortran} -lgfortran"
-    #end
+    # TODO: not sure we need to skip this in case of MKL build
+    if ((build.with? "fortran") && (!BlasRequirement.is_mkl?(blas_names)))
+      libgfortran = `$FC --print-file-name libgfortran.a`.chomp
+      ENV.append "LDFLAGS", "-L#{File.dirname libgfortran} -lgfortran"
+    end
 
     args << onoff("-DTrilinos_ENABLE_PyTrilinos:BOOL=", (build.with? "python"))
     args << "-DPyTrilinos_INSTALL_PREFIX:PATH=#{prefix}" if build.with? "python"

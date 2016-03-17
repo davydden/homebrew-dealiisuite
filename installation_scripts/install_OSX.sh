@@ -41,7 +41,6 @@ becho() {
 
 hbdir=~/.homebrew
 bashfile=~/.bash_profile
-useSystemLibs=true
 useMKL=false
 
 if [ $# -eq 0 ]; then
@@ -60,9 +59,6 @@ while [[ $# > 0 ]]; do
     -b|--bashfile)
       bashfile="$2"
       shift # past argument
-    ;;
-    -n|--no_system_libraries)
-      useSystemLibs=false
     ;;
     -m|--mkl)
       useMKL=true
@@ -93,7 +89,9 @@ if [ "$useMKL" = true ] ; then
   secho "Use MKL..."
   echo -e "Before proceeding, make sure \033[0;92mMKLROOT\033[0m is set."
   echo "Otherwise terminate the script (Ctrl+C), run equivalent of"
-  echo -e "\033[1;37m. /opt/intel/bin/compilervars.sh -arch intel64 -platform mac\033[0m"
+  echo -e "\033[1;37mexport MKLROOT=/opt/intel/mkl\033[0m"
+  #echo -e "\033[1;37m. /opt/intel/mkl/bin/mklvars.sh intel64 lp64\033[0m if you use GNU Fortran compiler or"
+  #echo -e "\033[1;37m. /opt/intel/mkl/bin/mklvars.sh intel64 mod lp64\033[0m if you use Intel Fortran compiler"
   echo "and rerun the script again. Press any key when ready..."
   read
 else
@@ -106,6 +104,9 @@ fi
 export HOMEBREW_PREFIX=$hbdir
 if [[ ! -d $HOMEBREW_PREFIX ]]; then
   git clone https://github.com/Homebrew/homebrew.git $HOMEBREW_PREFIX
+  # reset to a version which we tested
+  cd $HOMEBREW_PREFIX
+  git reset --hard 4b30df263ea85c61ec585b9859a3ba7b9b17e91f
 fi
 
 export HOMEBREW_LOGS=$HOMEBREW_PREFIX/_logs
@@ -119,8 +120,6 @@ if [ "$useMKL" = true ] ; then
   export HOMEBREW_BLASLAPACK_EXTRA="pthread;m" #;dl"
   export HOMEBREW_BLASLAPACK_LIB="${MKLROOT}/lib"
   export HOMEBREW_BLASLAPACK_INC="${MKLROOT}/include"
-  #  -L${MKLROOT}/lib -Wl,-rpath,${MKLROOT}/lib -lmkl_scalapack_lp64 -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lmkl_blacs_mpich_lp64 -lpthread -lm -ldl
-  export HOMEBREW_SCALAPACK_NAMES="mkl_scalapack_lp64;mkl_blacs_mpich_lp64"
 fi
 
 # check if we have recent enough ruby, otherwise build ourselves
@@ -177,10 +176,6 @@ brew install cmake
 # -------------
 brew tap davydden/dealiisuite
 
-#if [ "$useSystemLibs" = false ] ; then
-#  brew install openblas
-#fi
-
 brew install boost --with-mpi --without-single && \
 brew install hdf5 --with-mpi --c++11 && \
 brew test hdf5 && \
@@ -205,7 +200,7 @@ brew install suite-sparse --env=std && \
 brew install trilinos --env=std && \
 brew test trilinos && \
 brew install numdiff && \
-brew install oce --env=std --without-x11 && \
+brew install oce --without-x11 && \
 brew test oce && \
 brew install tbb --env=std && \
 brew install netcdf --with-cxx-compat --with-fortran --env=std && \
@@ -213,10 +208,6 @@ brew test netcdf && \
 brew install muparser --env=std && \
 brew install dealii --env=std && \
 brew test dealii
-
-# TODO:
-# brew test arpack
-# scalapack tests
 
 if [[ -e $bashfile ]]; then
   if [[ (( $addHBpaths == "y" )) || (( $addHBpaths == "Y" )) || (( $addHBpaths == "Yes" )) || (( $addHBpaths == "yes" )) ]]; then
