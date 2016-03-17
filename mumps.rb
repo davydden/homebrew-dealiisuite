@@ -15,8 +15,11 @@ class Mumps < Formula
     sha256 "d3de4a5d9a53c417139472a511211531bf5ce2b6b856622444d68629c15fb918" => :mountain_lion
   end
 
+  option "with-mkl", "Build with Scalapack from MKL"
   depends_on :mpi => [:cc, :cxx, :f90, :recommended]
-  depends_on "scalapack" if build.with? "mpi"
+  if build.with? "mpi"
+    depends_on "scalapack" if build.without? "mkl"
+  end
   depends_on "metis"    => :optional if build.without? "mpi"
   depends_on "parmetis" => :optional if build.with? "mpi"
   #-depends_on "scotch5"  => :optional
@@ -97,7 +100,12 @@ class Mumps < Formula
                     "FL=#{ENV["MPIFC"]} -fPIC",
                     "INCPAR=", # Let MPI compilers fill in the blanks.
                     "LIBPAR=$(SCALAP)"]
-      make_args += ["SCALAP=-L#{Formula["scalapack"].opt_lib} -lscalapack"]
+     if build.with? "mkl"
+       ldflags_sc = BlasRequirement.ldflags(ENV["HOMEBREW_BLASLAPACK_LIB"],ENV["HOMEBREW_SCALAPACK_NAMES"],"")
+       make_args += ["SCALAP=#{ldflags_sc}"]
+     else
+       make_args += ["SCALAP=-L#{Formula["scalapack"].opt_lib} -lscalapack"]
+     end
     else
       make_args += ["CC=#{ENV["CC"]} -fPIC",
                     "FC=#{ENV["FC"]} -fPIC",
@@ -142,7 +150,12 @@ class Mumps < Formula
     if build.with? "mpi"
       resource("mumps_simple").stage do
         simple_args = ["CC=#{ENV["MPICC"]}", "prefix=#{prefix}", "mumps_prefix=#{prefix}"]
-        simple_args +=["scalapack_libdir=#{Formula["scalapack"].opt_lib}"]
+        if build.with? "mkl"
+          ldflags_sc = BlasRequirement.ldflags(ENV["HOMEBREW_BLASLAPACK_LIB"],ENV["HOMEBREW_SCALAPACK_NAMES"],"")
+          simple_args +=["scalapack_libs=#{ldflags_sc}"]
+        else
+          simple_args +=["scalapack_libdir=#{Formula["scalapack"].opt_lib}"]
+        end
         if build.with? "scotch5"
           simple_args += ["scotch_libdir=#{Formula["scotch5"].opt_lib}",
                           "scotch_libs=-L$(scotch_libdir) -lptesmumps -lptscotch -lptscotcherr"]

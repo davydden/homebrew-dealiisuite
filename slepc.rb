@@ -14,9 +14,11 @@ class Slepc < Formula
 
   option "with-complex", "Build complex version by default. Otherwise, real-valued version will be built."
   option "without-check", "Skip run-time tests (not recommended)"
+  option "with-mkl", "Use MKL Scalapack in PETSc"
 
   complexdep      = (build.with? "complex")      ? ["with-complex"]      : []
-  depends_on "petsc" => complexdep 
+  complexdep += (build.with? "mkl") ? ["with-mkl"] : []
+  depends_on "petsc" => complexdep
   depends_on :mpi => [:cc, :f90]
   depends_on :fortran
   depends_on :x11 => :optional
@@ -78,8 +80,9 @@ class Slepc < Formula
   test do
     cp_r prefix/"share/slepc/tutorials", testpath
     Dir.chdir("tutorials") do
-      system "mpicc", "ex1.c", "-I#{opt_include}", "-I#{Formula["petsc"].opt_include}", "-L#{Formula["petsc"].opt_lib}", "-lpetsc", "-L#{opt_lib}", "-lslepc", "-o", "ex1"
-      system "mpirun -np 3 ex1 2>&1 | tee ex1.out"
+      extra = (OS.mac?) ? "-L/opt/intel/mkl/lib/"   : ""
+      system "mpicc", "ex1.c", "-I#{opt_include}", "-I#{Formula["petsc"].opt_include}", "-L#{Formula["petsc"].opt_lib}", "-lpetsc", "-L#{opt_lib}", "-lslepc", "#{extra}", "-o", "ex1"
+      system "mpirun -np 3 ./ex1 2>&1 | tee ex1.out"
       assert (identical?("output/ex1_1.out", "ex1.out"))
     end
   end

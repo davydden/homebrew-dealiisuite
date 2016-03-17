@@ -21,6 +21,7 @@ class Trilinos < Formula
   # are commented out with #- and failure reasons are documented.
 
   #-option "with-csparse", "Build with CSparse (Experimental TPL) from suite-sparse" # Undefined symbols for architecture x86_64: "Amesos_CSparse::Amesos_CSparse(Epetra_LinearProblem const&)"
+  option "with-mkl", "Build with MKL provided Scalapack"
 
   depends_on :mpi           => [:cc, :cxx, :recommended]
   depends_on :fortran       => :recommended
@@ -44,10 +45,14 @@ class Trilinos < Formula
   #-depends_on "hwloc"        => :recommended
   #-depends_on "libmatio"     => [:recommended] + ((build.with? "hdf5") ? ["with-hdf5"] : [])
   depends_on "metis"        => :recommended
-  depends_on "mumps"        => :recommended
   #-depends_on "netcdf"       => ["with-fortran", :recommended]
   depends_on "parmetis"     => :recommended if build.with? "mpi"
-  depends_on "scalapack"    => :recommended
+  if build.with? "mkl"
+    depends_on "mumps"        => ["with-mkl",:recommended]
+  else
+    depends_on "scalapack"    => :recommended
+    depends_on "mumps"        => :recommended # mumps is built with mpi by default
+  end
   #-depends_on "scotch"       => :recommended
   depends_on "suite-sparse" => :recommended
   #-depends_on "superlu"      => :recommended // Amesos2_Superlu_FunctionMap.hpp:83:14: error: no type named 'superlu_options_t' in namespace 'SLU'
@@ -238,7 +243,11 @@ class Trilinos < Formula
       args << "-DTPL_ENABLE_ParMETIS:BOOL=OFF"
     end
 
-    args << onoff("-DTPL_ENABLE_SCALAPACK:BOOL=",   (build.with? "scalapack"))
+    args << onoff("-DTPL_ENABLE_SCALAPACK:BOOL=",   ( (build.with? "scalapack") || (build.with? "mkl") ))
+    if build.with? "mkl"
+      args << "-DSCALAPACK_LIBRARY_NAMES=#{ENV["HOMEBREW_SCALAPACK_NAMES"]}"
+      args << "-DSCALAPACK_LIBRARY_DIRS=#{blas_lib}"
+    end
 
     args << onoff("-DTPL_ENABLE_SuperLU:BOOL=", false) #   (build.with? "superlu"))
     # args << "-DSuperLU_INCLUDE_DIRS=#{Formula["superlu"].opt_include}/superlu" if build.with? "superlu"

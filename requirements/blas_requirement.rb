@@ -25,6 +25,7 @@ require "requirement"
 #   and kKnown Limitation related to COMPLEX number functions in https://software.intel.com/en-us/articles/intel-mkl-111-release-notes
 #
 #
+# When installing MKL don't forget to check "Cluster support" to have Scalapack installed !
 class BlasRequirement < Requirement
   fatal true
   # on OSX -lblas and -llapack should work OOB.

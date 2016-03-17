@@ -19,12 +19,14 @@ class Dealii < Formula
   end
 
   option "with-testsuite", "Run full test suite (7000+ tests). Takes a lot of time."
+  option "with-mkl", "Use Scalapack from MKL"
 
   depends_on CmakeRequirement => ["2.8",:build]
   depends_on BlasRequirement
   depends_on :mpi           => [:cc, :cxx, :f90, :recommended]
 
   mpidep      = (build.with? "mpi")      ? ["with-mpi"]      : []
+  mkldep      = (build.with? "mkl")      ? ["with-mkl"]      : []
 
   depends_on "arpack"       => [:recommended] + mpidep
   depends_on "boost"        => :recommended
@@ -34,14 +36,14 @@ class Dealii < Formula
   depends_on "muparser"     => :recommended if MacOS.version != :mountain_lion # Undefined symbols for architecture x86_64
   depends_on "netcdf"       => [:recommended, "with-fortran", "with-cxx-compat"]
   depends_on "numdiff"      => :recommended
-  depends_on "oce"  => :recommended
+  depends_on "oce"          => :recommended
   depends_on "p4est"        => :recommended if build.with? "mpi"
   depends_on "parmetis"     => :recommended if build.with? "mpi"
-  depends_on "petsc"        => :recommended
-  depends_on "slepc"        => :recommended
+  depends_on "petsc"        => [:recommended] + mkldep
+  depends_on "slepc"        => [:recommended] + mkldep
   depends_on "suite-sparse" => :recommended
   depends_on "tbb"          => :recommended
-  depends_on "trilinos"     => :recommended
+  depends_on "trilinos"     => [:recommended] + mkldep
 
   needs :cxx11
   def install
