@@ -35,7 +35,6 @@ class Parmetis < Formula
   end
 
   def install
-    # ENV["LDFLAGS"] = "-L#{Formula["metis"].lib} -lmetis -lm"
     args = %W[
       -DCMAKE_VERBOSE_MAKEFILE=1
       -DCMAKE_BUILD_TYPE=Release
@@ -43,7 +42,7 @@ class Parmetis < Formula
       -DSHARED=1
       -DOPENMP=0
       -DCMAKE_FIND_FRAMEWORK=LAST
-      -Wno-dev      
+      -Wno-dev
       -DCMAKE_INSTALL_RPATH:STRING=#{lib}
       -DCMAKE_INSTALL_RPATH_USE_LINK_PATH:BOOL=ON
       -DGKLIB_PATH=../metis/GKlib
@@ -81,7 +80,7 @@ index ca945dd..1bf94e9 100644
  add_subdirectory(include)
  add_subdirectory(libparmetis)
  add_subdirectory(programs)
- 
+
 diff --git a/libparmetis/CMakeLists.txt b/libparmetis/CMakeLists.txt
 index 9cfc8a7..dfc0125 100644
 --- a/libparmetis/CMakeLists.txt
@@ -93,5 +92,5 @@ index 9cfc8a7..dfc0125 100644
 -target_link_libraries(parmetis metis ${MPI_LIBRARIES})
 +target_link_libraries(parmetis metis ${MPI_LIBRARIES} "-lm")
  set_target_properties(parmetis PROPERTIES LINK_FLAGS "${MPI_LINK_FLAGS}")
- 
+
  install(TARGETS parmetis
