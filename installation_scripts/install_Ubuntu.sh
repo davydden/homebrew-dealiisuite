@@ -146,14 +146,8 @@ fi
 if [ "$useMKL" = true ] ; then
   export HOMEBREW_BLASLAPACK_NAMES="mkl_gf_lp64;mkl_sequential;mkl_core"
   export HOMEBREW_BLASLAPACK_EXTRA="pthread;m;dl"
-  #export HOMEBREW_BLASLAPACK_NAMES="mkl_intel_lp64;mkl_sequential;mkl_core"
-  #export HOMEBREW_BLASLAPACK_EXTRA="pthread;m"
-  #export MKL_THREADING_LAYER=MKL_THREADING_SEQUENTIAL
-  #export HOMEBREW_BLASLAPACK_NAMES="mkl_rt"
-  #export HOMEBREW_BLASLAPACK_EXTRA="pthread;m;dl"
   export HOMEBREW_BLASLAPACK_LIB="${MKLROOT}/lib/intel64"
   export HOMEBREW_BLASLAPACK_INC="${MKLROOT}/include"
-  export HOMEBREW_SCALAPACK_NAMES="mkl_scalapack_lp64;mkl_blacs_openmpi_lp64"
 fi
 
 # check if we have recent enough ruby, otherwise build ourselves
@@ -196,9 +190,6 @@ brew tap davydden/dealiisuite
 if [ "$useSystemLibs" = false ] ; then
   brew install openblas
 fi
-
-# TODO:
-# fix petsc --with-mkl, then enable --with-mkl in MUMPS
 
 # temporary hack
 export LD_LIBRARY_PATH="$HOMEBREW_PREFIX/lib:$LD_LIBRARY_PATH"
