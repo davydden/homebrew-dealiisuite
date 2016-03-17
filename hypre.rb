@@ -40,7 +40,7 @@ class Hypre < Formula
                       "--with-blas-lib-dirs=#{blas_lib}",
                       "--with-lapack-libs=#{blas_names_split}",
                       "--with-lapack-lib-dirs=#{blas_lib}"]
-      ENV.prepend "LDFLAGS", "-Wl,-rpath,#{blas_lib}"
+      ENV.prepend "LDFLAGS", "-Wl,-rpath,#{blas_lib}" if blas_lib!=""
 
       config_args << "--disable-fortran" if build.without? :fortran
       config_args << "--without-superlu" if build.without? "superlu"
