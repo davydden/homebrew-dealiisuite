@@ -32,7 +32,7 @@ class Hypre < Formula
       config_args = ["--prefix=#{prefix}"]
 
       config_args << "--enable-debug" if build.with? "debug"
-      
+
       blas_names = ENV["HOMEBREW_BLASLAPACK_NAMES"]
       blas_lib   = ENV["HOMEBREW_BLASLAPACK_LIB"]
       blas_names_split = blas_names.split(";").join(" ")
@@ -40,6 +40,7 @@ class Hypre < Formula
                       "--with-blas-lib-dirs=#{blas_lib}",
                       "--with-lapack-libs=#{blas_names_split}",
                       "--with-lapack-lib-dirs=#{blas_lib}"]
+      ENV.prepend "LDFLAGS", "-Wl,-rpath,#{blas_lib}" if blas_lib!=""
 
       config_args << "--disable-fortran" if build.without? :fortran
       config_args << "--without-superlu" if build.without? "superlu"
@@ -95,7 +96,7 @@ class Hypre < Formula
           # Overriding makefile variables at the command line is unworkable
           # here because the LFLAGS variable must be overridden, and LFLAGS
           # contains other makefile variable substitutions.
-          lapack_flag = BlasRequirement.ldflags(ENV["HOMEBREW_BLASLAPACK_LIB"],ENV["HOMEBREW_BLASLAPACK_NAMES"])
+          lapack_flag = BlasRequirement.ldflags(ENV["HOMEBREW_BLASLAPACK_LIB"],ENV["HOMEBREW_BLASLAPACK_NAMES"],ENV["HOMEBREW_BLASLAPACK_EXTRA"])
           inreplace "Makefile", "-lstdc++", "-lstdc++ #{lapack_flag}"
 
           # Hack to excise Fortran examples from "make all"; they are still

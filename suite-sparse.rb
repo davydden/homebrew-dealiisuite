@@ -44,7 +44,7 @@ class SuiteSparse < Formula
                 ]
 
     # blas/lapack
-    ldflags = BlasRequirement.ldflags(ENV["HOMEBREW_BLASLAPACK_LIB"],ENV["HOMEBREW_BLASLAPACK_NAMES"])
+    ldflags = BlasRequirement.ldflags(ENV["HOMEBREW_BLASLAPACK_LIB"],ENV["HOMEBREW_BLASLAPACK_NAMES"],ENV["HOMEBREW_BLASLAPACK_EXTRA"])
     make_args << "BLAS=#{ldflags}"
     make_args << "LAPACK=$(BLAS)"
 

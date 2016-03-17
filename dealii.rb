@@ -4,9 +4,8 @@ require_relative "requirements/cmake_requirement"
 class Dealii < Formula
   desc "open source finite element library"
   homepage "http://www.dealii.org"
-  url "https://github.com/dealii/dealii/releases/download/v8.3.0/dealii-8.3.0.tar.gz"
-  sha256 "4ddf72632eb501e1c814e299f32fc04fd680d6fda9daff58be4209e400e41779"
-  revision 2
+  url "https://github.com/dealii/dealii/releases/download/v8.4.0/dealii-8.4.0.tar.gz"
+  sha256 "36a20e097a03f17b557e11aad1400af8c6252d25f7feca40b611d5fc16d71990"
 
   bottle do
     cellar :any
@@ -20,29 +19,31 @@ class Dealii < Formula
   end
 
   option "with-testsuite", "Run full test suite (7000+ tests). Takes a lot of time."
+  option "with-mkl", "Use Scalapack from MKL"
 
   depends_on CmakeRequirement => ["2.8",:build]
   depends_on BlasRequirement
   depends_on :mpi           => [:cc, :cxx, :f90, :recommended]
 
   mpidep      = (build.with? "mpi")      ? ["with-mpi"]      : []
+  mkldep      = (build.with? "mkl")      ? ["with-mkl"]      : []
 
   depends_on "arpack"       => [:recommended] + mpidep
   depends_on "boost"        => :recommended
   #-depends_on "doxygen"      => :optional # installation error: CMake Error at doc/doxygen/cmake_install.cmake:31 (file)
   depends_on "hdf5"         => [:recommended] + mpidep
   depends_on "metis"        => :recommended
-  #-depends_on "muparser"     => :recommended if MacOS.version != :mountain_lion # Undefined symbols for architecture x86_64
-  #-depends_on "netcdf"       => [:recommended, "with-fortran", "with-cxx-compat"]
+  depends_on "muparser"     => :recommended if MacOS.version != :mountain_lion # Undefined symbols for architecture x86_64
+  depends_on "netcdf"       => [:recommended, "with-fortran", "with-cxx-compat"]
   depends_on "numdiff"      => :recommended
-  depends_on "oce"  => :recommended
+  depends_on "oce"          => :recommended
   depends_on "p4est"        => :recommended if build.with? "mpi"
   depends_on "parmetis"     => :recommended if build.with? "mpi"
-  depends_on "petsc"        => :recommended
-  depends_on "slepc"        => :recommended
+  depends_on "petsc"        => [:recommended] + mkldep
+  depends_on "slepc"        => [:recommended] + mkldep
   depends_on "suite-sparse" => :recommended
-  #-depends_on "tbb"          => :recommended
-  depends_on "trilinos"     => :recommended
+  depends_on "tbb"          => :recommended
+  depends_on "trilinos"     => [:recommended] + mkldep
 
   needs :cxx11
   def install
@@ -62,7 +63,7 @@ class Dealii < Formula
     args << "-DDEAL_II_COMPONENT_DOCUMENTATION=ON" if build.with? "doxygen"
 
     blas_inc   = ENV["HOMEBREW_BLASLAPACK_INC"]
-    blas_processed = BlasRequirement.full_path(ENV["HOMEBREW_BLASLAPACK_LIB"],ENV["HOMEBREW_BLASLAPACK_NAMES"],";")
+    blas_processed = BlasRequirement.full_path(ENV["HOMEBREW_BLASLAPACK_LIB"],ENV["HOMEBREW_BLASLAPACK_NAMES"],ENV["HOMEBREW_BLASLAPACK_EXTRA"],";")
     args << "-DLAPACK_FOUND=true"
     args << "-DLAPACK_INCLUDE_DIRS=#{blas_inc}"
     args << "-DLAPACK_LIBRARIES=#{blas_processed}"

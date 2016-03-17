@@ -31,7 +31,7 @@ class P4est < Formula
     ENV["CFLAGS"]   = "-O2"
     ENV["CPPFLAGS"] = "-DSC_LOG_PRIORITY=SC_LP_ESSENTIAL"
 
-    ldflags = BlasRequirement.ldflags(ENV["HOMEBREW_BLASLAPACK_LIB"],ENV["HOMEBREW_BLASLAPACK_NAMES"])
+    ldflags = BlasRequirement.ldflags(ENV["HOMEBREW_BLASLAPACK_LIB"],ENV["HOMEBREW_BLASLAPACK_NAMES"],ENV["HOMEBREW_BLASLAPACK_EXTRA"])
     args = ["--enable-mpi",
             "--enable-shared",
             "--disable-vtk-binary",
@@ -45,9 +45,6 @@ class P4est < Formula
     system "make"
     system "make", "check" if build.with? "check"
     system "make", "install"
-    # Temporary workaround for library loading error (library not in path)
-    include.install_symlink Dir["#{prefix}/FAST/include/*h"]
-    lib.install_symlink Dir["#{prefix}/FAST/lib/*.*"]
 
     # slow / debug
     args_debug = ["--prefix=#{prefix}/DEBUG",

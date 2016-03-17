@@ -1,5 +1,31 @@
 require "requirement"
 
+# This class aims to wrap all possible Blas/lapack libraries.
+# The most difficult one is MKL.
+# The MKL link advisor https://software.intel.com/en-us/articles/intel-mkl-link-line-advisor/ recommends
+# LDFLAGS:
+#  -L${MKLROOT}/lib -Wl,-rpath,${MKLROOT}/lib -lmkl_intel_lp64 -lmkl_core -lmkl_sequential -lpthread -lm -ldl
+# CFLAGS:
+#  -m64 -I${MKLROOT}/include
+#
+# To implement this we define the following environment variables:
+#   HOMEBREW_BLASLAPACK_LIB    -- localtion of MKL libraires (e.g. ""${MKLROOT}/lib")
+#   HOMEBREW_BLASLAPACK_NAMES  -- names of MKL libraries (e.g. "mkl_intel_lp64;mkl_core;mkl_sequential")
+#   HOMEBREW_BLASLAPACK_EXTRA  -- extra (system) libraries' names (e.g. "pthread;m;dl")
+#   HOMEBREW_BLASLAPACK_INC    -- include folder (e.g. ""${MKLROOT}/include")
+#
+# These variables also cover less compilcated cases (e.g. system-provided blas/lapack, veclibfort or openblas)
+#
+# TODO: Note that the list of Fortran libraries is a bit different. Link advisor on Linux with GNU fortran results in
+#   -Wl,--no-as-needed -L${MKLROOT}/lib/intel64 -lmkl_gf_lp64 -lmkl_core -lmkl_sequential -lpthread -lm -ldl
+#                                                 ^^^^^^^^^^^  instead of lmkl_intel_lp64
+#
+# The workaround is to add the following fortran flags: -ff2c -fno-second-underscore  when used with GNU Fortran, see
+#   https://software.intel.com/en-us/forums/intel-math-kernel-library/topic/613015#comment-1864003
+#   and kKnown Limitation related to COMPLEX number functions in https://software.intel.com/en-us/articles/intel-mkl-111-release-notes
+#
+#
+# When installing MKL don't forget to check "Cluster support" to have Scalapack installed !
 class BlasRequirement < Requirement
   fatal true
   # on OSX -lblas and -llapack should work OOB.
@@ -16,40 +42,54 @@ class BlasRequirement < Requirement
       @default_names = "openblas"
       @default_lib   = "#{Formula["openblas"].opt_lib}"
       @default_inc   = "#{Formula["openblas"].opt_include}"
+      @default_extra = ""
     # if we are on OSX and need fortran and veclibfort is installed use it
     elsif tags.include?(:fortran_single) && OS.mac? && Formula["veclibfort"].installed?
       @default_names = "veclibfort"
       @default_lib   = "#{Formula["veclibfort"].opt_lib}"
       @default_inc   = "#{Formula["veclibfort"].opt_include}"
+      @default_extra = ""
     # Otherwise do standard "blas;lapack"
     else
       @default_names = "blas;lapack"
       @default_lib   = ""
       @default_inc   = ""
+      @default_extra = ""
     end
     super(tags)
   end
 
-  # This ensures that HOMEBREW_BLASLAPACK_NAMES, HOMEBREW_BLASLAPACK_LIB 
-  # and HOMEBREW_BLASLAPACK_INC are always set. It does _not_ add them to 
+  # This ensures that HOMEBREW_BLASLAPACK_NAMES, HOMEBREW_BLASLAPACK_LIB
+  # and HOMEBREW_BLASLAPACK_INC are always set. It does _not_ add them to
   # CFLAGS or LDFLAGS; that should happen inside the formula.
   env do
     if @satisfied_result
       ENV["HOMEBREW_BLASLAPACK_NAMES"] ||= @default_names
       ENV["HOMEBREW_BLASLAPACK_LIB"]   ||= @default_lib
       ENV["HOMEBREW_BLASLAPACK_INC"]   ||= @default_inc
+      ENV["HOMEBREW_BLASLAPACK_EXTRA"] ||= @default_extra
     else
       ENV["HOMEBREW_BLASLAPACK_NAMES"]   = "#{self.class.default_formula}"
       ENV["HOMEBREW_BLASLAPACK_LIB"]     = "#{Formula[self.class.default_formula].opt_lib}"
       ENV["HOMEBREW_BLASLAPACK_INC"]     = "#{Formula[self.class.default_formula].opt_include}"
+      ENV["HOMEBREW_BLASLAPACK_EXTRA"]   = ""
     end
   end
 
   # A static function to create linking flags
-  def self.ldflags(blas_lib,blas_names)
-    res  = blas_lib != "" ? "-L#{blas_lib} " : ""
+  # In case library folder is provided, assume that its location is general,
+  # and add  "rpath" flags
+  def self.ldflags(blas_lib,blas_names,blas_extra)
+    res  = blas_lib != "" ? "-L#{blas_lib} -Wl,-rpath,#{blas_lib} " : ""
     res += blas_names.split(";").map { |word| "-l#{word}" }.join(" ")
+    res += " "
+    res += blas_extra.split(";").map { |word| "-l#{word}" }.join(" ")
     return res
+  end
+
+  # Auxilary function which retunrs true if MKL libs are identified in @p blas_names
+  def self.is_mkl?(blas_names)
+    return blas_names.include? "mkl"
   end
 
   # A static function to create compiler flags
@@ -58,25 +98,25 @@ class BlasRequirement < Requirement
   end
 
   # A static function to create full path to blas-lapack libraries separated by @p separator .
-  def self.full_path(blas_lib,blas_names,separator)
+  def self.full_path(blas_lib,blas_names,blas_extra,separator)
     exten = (OS.mac?) ? "dylib" : "so"
     tmp = blas_lib.chomp("/")
     tmp = "#{tmp}/" if tmp != ""
-    return blas_names.split(";").map { |word| "#{tmp}lib#{word}.#{exten}" }.join(separator)
+    res = blas_names.split(";").map { |word| "#{tmp}lib#{word}.#{exten}" }.join(separator)
+    # as for extra librareis, we need to assume that their location is inside PATH,
+    # so just add them at the end of the list
+    res+= separator;
+    res+= blas_extra.split(";").map { |word| "lib#{word}.#{exten}" }.join(separator)
+    return res
   end
 
   satisfy :build_env => true do
     blas_names = ENV["HOMEBREW_BLASLAPACK_NAMES"] || @default_names
     blas_lib   = ENV["HOMEBREW_BLASLAPACK_LIB"]   || @default_lib
     blas_inc   = ENV["HOMEBREW_BLASLAPACK_INC"]   || @default_inc
+    blas_extra = ENV["HOMEBREW_BLASLAPACK_EXTRA"] || @default_extra
     cflags     = BlasRequirement.cflags(blas_inc)
-    # make sure executable is linked with RPATH:
-    ldflags    = blas_lib != "" ? "-Wl,-rpath,#{blas_lib} " : ""
-    ldflags   += BlasRequirement.ldflags(blas_lib,blas_names)
-    # even sequetial MKL BLAS has to be linked against libpthread (e.g. pthread_mutex_trylock)!
-    # We most likely need basic math (atan2, sin, etc) from libm .
-    # Adding both won't make much harm for a single test:
-    ldflags   += " -lpthread -lm"
+    ldflags    = BlasRequirement.ldflags(blas_lib,blas_names,blas_extra)
     success = nil
     Dir.mktmpdir do |tmpdir|
       tmpdir = Pathname.new tmpdir
@@ -118,7 +158,7 @@ class BlasRequirement < Requirement
         success3 = system "#{tmpdir}/blastest",
                :err => "/dev/null"
         success = ( success && success2 ) && success3
-      end 
+      end
     end
     if !success
       opoo "BLAS not configured"
@@ -127,6 +167,7 @@ class BlasRequirement < Requirement
           HOMEBREW_BLASLAPACK_NAMES (e.g. "mkl_intel_lp64;mkl_sequential;mkl_core")
           HOMEBREW_BLASLAPACK_LIB   (e.g. "${MKLROOT}/lib/intel64")
           HOMEBREW_BLASLAPACK_INC   (e.g. "${MKLROOT}/include")
+          HOMEBREW_BLASLAPACK_EXTRA (e.g. "pthread;m")
         to correct values.
       EOS
     end
