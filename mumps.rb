@@ -97,7 +97,7 @@ class Mumps < Formula
                     "FL=#{ENV["MPIFC"]} -fPIC",
                     "INCPAR=", # Let MPI compilers fill in the blanks.
                     "LIBPAR=$(SCALAP)"]
-      make_args += ["SCALAP=-L#{Formula["scalapack"].opt_lib} -lscalapack"]
+      make_args += ["SCALAP=-L#{Formula["scalapack"].opt_lib} -Wl,-rpath,#{Formula["scalapack"].opt_lib} -lscalapack"]
     else
       make_args += ["CC=#{ENV["CC"]} -fPIC",
                     "FC=#{ENV["FC"]} -fPIC",

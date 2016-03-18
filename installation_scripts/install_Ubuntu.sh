@@ -135,7 +135,7 @@ export MANPATH="$HOMEBREW_PREFIX/share/man:$MANPATH"
 export INFOPATH="$HOMEBREW_PREFIX/share/info:$INFOPATH"
 
 if [ "$useMKL" = true ] ; then
-  secho "Use MKL..."
+  secho "Use Intel Math Kernel Library."
   echo -e "Before proceeding, make sure \033[0;92mMKLROOT\033[0m is set."
   echo "Otherwise terminate the script (Ctrl+C), run equivalent of"
   echo -e "\033[1;37m . ~/intel/bin/compilervars.sh --arch intel64 -platform linux\033[0m"
@@ -190,9 +190,6 @@ brew tap davydden/dealiisuite
 if [ "$useSystemLibs" = false ] ; then
   brew install openblas
 fi
-
-# temporary hack
-export LD_LIBRARY_PATH="$HOMEBREW_PREFIX/lib:$LD_LIBRARY_PATH"
 
 brew install boost --with-mpi --without-single && \
 brew install hdf5 --with-mpi --c++11 && \
