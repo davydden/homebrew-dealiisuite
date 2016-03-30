@@ -80,7 +80,11 @@ class Hdf5 < Formula
         return 0;
       }
     EOS
-    system "h5cc", "test.c"
+    if build.with? :cxx11
+      system "#{bin}/h5cc", "test.c"
+    else
+      system "#{bin}/h5c++", "test.c"
+    end
     assert_match(/#{version}/, shell_output("./a.out"))
   end
 end

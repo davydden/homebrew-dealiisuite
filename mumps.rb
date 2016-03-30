@@ -16,9 +16,7 @@ class Mumps < Formula
   end
 
   depends_on :mpi => [:cc, :cxx, :f90, :recommended]
-  if build.with? "mpi"
-    depends_on "scalapack"
-  end
+  depends_on "scalapack" if build.with? "mpi"
   depends_on "metis"    => :optional if build.without? "mpi"
   depends_on "parmetis" => :optional if build.with? "mpi"
   #-depends_on "scotch5"  => :optional
@@ -36,10 +34,10 @@ class Mumps < Formula
     if OS.mac?
       # Building dylibs with mpif90 causes segfaults on 10.8 and 10.10. Use gfortran.
       make_args = ["LIBEXT=.dylib",
-                   "AR=#{ENV["FC"]} -dynamiclib -Wl,-install_name -Wl,#{lib}/$(notdir $@) -undefined dynamic_lookup -o ",
+                   "AR=#{ENV["FC"]} -dynamiclib -Wl,-install_name -Wl,#{opt_prefix}/lib/$(notdir $@) -undefined dynamic_lookup -o ",
                    "RANLIB=echo"]
     else
-      make_args = ["LIBEXT=.so", "AR=$(FL) -shared -Wl,-soname -Wl,$(notdir $@) -o ", "RANLIB=echo"]
+      make_args = ["LIBEXT=.so", "AR=$(FL) -shared -Wl,-soname -Wl,#{opt_prefix}/lib/$(notdir $@) -o ", "RANLIB=echo"]
     end
     make_args += ["OPTF=-O", "CDEFS=-DAdd_"]
     orderingsf = "-Dpord"
@@ -97,16 +95,16 @@ class Mumps < Formula
       make_args += ["CC=#{ENV["MPICC"]} -fPIC",
                     "FC=#{ENV["MPIFC"]} -fPIC",
                     "FL=#{ENV["MPIFC"]} -fPIC",
-                    "SCALAP=-L#{Formula["scalapack"].opt_lib} -lscalapack",
                     "INCPAR=", # Let MPI compilers fill in the blanks.
                     "LIBPAR=$(SCALAP)"]
+      make_args += ["SCALAP=-L#{Formula["scalapack"].opt_lib} -Wl,-rpath,#{Formula["scalapack"].opt_lib} -lscalapack"]
     else
       make_args += ["CC=#{ENV["CC"]} -fPIC",
                     "FC=#{ENV["FC"]} -fPIC",
                     "FL=#{ENV["FC"]} -fPIC"]
     end
 
-    ldflags    = BlasRequirement.ldflags(ENV["HOMEBREW_BLASLAPACK_LIB"],ENV["HOMEBREW_BLASLAPACK_NAMES"])
+    ldflags    = BlasRequirement.ldflags(ENV["HOMEBREW_BLASLAPACK_LIB"],ENV["HOMEBREW_BLASLAPACK_NAMES"],ENV["HOMEBREW_BLASLAPACK_EXTRA"])
     make_args << "LIBBLAS=#{ldflags}"
 
     ENV.deparallelize # Build fails in parallel on Mavericks.
@@ -143,8 +141,8 @@ class Mumps < Formula
 
     if build.with? "mpi"
       resource("mumps_simple").stage do
-        simple_args = ["CC=#{ENV["MPICC"]}", "prefix=#{prefix}", "mumps_prefix=#{prefix}",
-                       "scalapack_libdir=#{Formula["scalapack"].opt_lib}"]
+        simple_args = ["CC=#{ENV["MPICC"]}", "prefix=#{prefix}", "mumps_prefix=#{prefix}"]
+        simple_args +=["scalapack_libdir=#{Formula["scalapack"].opt_lib}"]
         if build.with? "scotch5"
           simple_args += ["scotch_libdir=#{Formula["scotch5"].opt_lib}",
                           "scotch_libs=-L$(scotch_libdir) -lptesmumps -lptscotch -lptscotcherr"]

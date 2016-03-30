@@ -14,6 +14,7 @@ class Oce < Formula
   #-conflicts_with "opencascade", :because => "OCE is a fork for patches/improvements/experiments over OpenCascade"
 
   #-option "without-opencl", "Build without OpenCL support"
+  option "without-x11", "Build without X11 support"
 
   depends_on CmakeRequirement => ["2.8",:build]
   #-depends_on "freetype"
@@ -26,10 +27,23 @@ class Oce < Formula
   def install
     # cmake_args = std_cmake_args
     cmake_args = %W[
-      -DCMAKE_BUILD_TYPE=Release
       ]
+    # be conservative since 6.9 has problems with clang if -O2
+    # see http://tracker.dev.opencascade.org/print_bug_page.php?bug_id=26042
+    if OS.mac?
+      ENV.append_to_cflags "-g"
+      ENV["HOMEBREW_OPTIMIZATION_LEVEL"] = "g"
+      cmake_args << "-DCMAKE_BUILD_TYPE=Debug"
+      cmake_args << "-DOCE_BUILD_TYPE:STRING=Debug"
+      cmake_args << "-DOCE_DATAEXCHANGE:BOOL=ON"
+      cmake_args << "-DOCE_OSX_USE_COCOA:BOOL=ON"
+    else
+      cmake_args << "-DCMAKE_BUILD_TYPE=Release"
+    end
+
     cmake_args << "-DOCE_INSTALL_PREFIX:STRING=#{prefix}"
     cmake_args << "-DOCE_COPY_HEADERS_BUILD:BOOL=ON"
+    cmake_args << "-DOCE_DISABLE_X11=ON" if build.without? "x11"
     #cmake_args << "-DOCE_DRAW:BOOL=ON"
     cmake_args << "-DOCE_MULTITHREAD_LIBRARY:STRING=TBB" if build.with? "tbb"
     # cmake_args << "-DFREETYPE_INCLUDE_DIRS=#{Formula["freetype"].opt_include}/freetype2"
@@ -59,6 +73,8 @@ class Oce < Formula
   end
 
   test do
-    "1\n"==`CASROOT=#{share}/oce-#{version} #{bin}/DRAWEXE -v -c \"pload ALL\"`
+    if build.with? "x11"
+      "1\n"==`CASROOT=#{share}/oce-#{version} #{bin}/DRAWEXE -v -c \"pload ALL\"`
+    end
   end
 end

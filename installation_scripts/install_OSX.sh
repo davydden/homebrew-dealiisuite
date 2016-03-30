@@ -21,7 +21,7 @@ secho() {
 
 # echo status with 2 arguments
 secho2() {
-  echo -e "\033[0;94m==> \033[1;37m$1 \033[0;32m$2 \033[0m"
+  echo -e "\033[0;94m==> \033[1;37m$1 \033[0;92m$2 \033[0m"
 }
 
 # echo warning
@@ -34,13 +34,13 @@ becho() {
   echo -e "\033[4;31mError:\033[0m $@"
 }
 
+################################################################################
 # --------
 # SETTINGS
 # --------
 
-hbdir=~/.linuxbrew
-bashfile=~/.bashrc
-useSystemLibs=true
+hbdir=~/.homebrew
+bashfile=~/.bash_profile
 useMKL=false
 
 if [ $# -eq 0 ]; then
@@ -60,9 +60,6 @@ while [[ $# > 0 ]]; do
       bashfile="$2"
       shift # past argument
     ;;
-    -n|--no_system_libraries)
-      useSystemLibs=false
-    ;;
     -m|--mkl)
       useMKL=true
     ;;
@@ -75,14 +72,8 @@ while [[ $# > 0 ]]; do
   shift # past argument or value
 done
 
-secho2 "Linuxbrew installation path:" "$hbdir"
+secho2 "Homebrew installation path:" "$hbdir"
 secho2 "Bash file:" "$bashfile"
-
-if [ "$useSystemLibs" = true ] ; then
-  secho "Using system libraries (GCC, MPI, CMake, BLAS/LAPACK)."
-else
-  secho "Will install all base libraries through Linuxbrew."
-fi
 
 # -------------------------
 # REQUIRES USER INTERACTION
@@ -94,28 +85,21 @@ read addHBpaths
 # -----------------------------
 # PREREQUISITE SYSTEM LIBRARIES
 # -----------------------------
-
-# assume that if we run it once, we should have everything installed
-if [[ ! -d $hbdir ]]; then
-secho "Prerequisite system libraries"
-echo "You are about to be asked for your password so that "
-echo "essential system libraries can be installed."
-echo "After this, the rest of the build should be automatic."
-
-if [ "$useSystemLibs" = true ] ; then
-  sudo apt-get install \
-  build-essential curl git m4 ruby texinfo libbz2-dev libcurl4-openssl-dev libexpat-dev libncurses-dev zlib1g-dev csh subversion \
-  gcc g++ gfortran \
-  mpi-default-bin libopenmpi-dev \
-  cmake \
-  libblas-dev liblapack-dev > /dev/null
+if [ "$useMKL" = true ] ; then
+  secho "Use Intel Math Kernel Library."
+  echo -e "Before proceeding, make sure \033[0;92mMKLROOT\033[0m is set."
+  echo "Otherwise terminate the script (Ctrl+C), run equivalent of"
+  echo -e "\033[1;37mexport MKLROOT=/opt/intel/mkl\033[0m"
+  #echo -e "\033[1;37m. /opt/intel/mkl/bin/mklvars.sh intel64 lp64\033[0m if you use GNU Fortran compiler or"
+  #echo -e "\033[1;37m. /opt/intel/mkl/bin/mklvars.sh intel64 mod lp64\033[0m if you use Intel Fortran compiler"
+  echo "and rerun the script again. Press any key when ready..."
+  echo ""
+  wecho "The following ScaLAPCK routines fail with MKL:"
+  echo -e "\033[1;37mxssep, xcsep, xsgsep, xcgsep, xssyevr, xcheevr, xshseqr\033[0m"
+  echo "see https://software.intel.com/en-us/forums/intel-math-kernel-library/topic/613015#comment-1864021"
+  read
 else
-  sudo apt-get install \
-  build-essential curl git m4 ruby texinfo libbz2-dev libcurl4-openssl-dev libexpat-dev libncurses-dev zlib1g-dev csh subversion \
-  gcc g++ gfortran \
-  default-jre > /dev/null
-fi
-sudo -k # Safety first: Invalidate user timestamp
+  secho "Use framework Acceleate blas/lapack."
 fi
 
 # --------------
@@ -123,9 +107,10 @@ fi
 # --------------
 export HOMEBREW_PREFIX=$hbdir
 if [[ ! -d $HOMEBREW_PREFIX ]]; then
-  git clone https://github.com/Homebrew/linuxbrew.git $HOMEBREW_PREFIX
+  git clone https://github.com/Homebrew/homebrew.git $HOMEBREW_PREFIX
+  # reset to a version which we tested
   cd $HOMEBREW_PREFIX
-  git reset --hard ff7c44bf5766b8ab02c7e67cce64a3fba8b2f316
+  git reset --hard 4b30df263ea85c61ec585b9859a3ba7b9b17e91f
 fi
 
 export HOMEBREW_LOGS=$HOMEBREW_PREFIX/_logs
@@ -135,18 +120,9 @@ export MANPATH="$HOMEBREW_PREFIX/share/man:$MANPATH"
 export INFOPATH="$HOMEBREW_PREFIX/share/info:$INFOPATH"
 
 if [ "$useMKL" = true ] ; then
-  secho "Use Intel Math Kernel Library."
-  echo -e "Before proceeding, make sure \033[0;92mMKLROOT\033[0m is set."
-  echo "Otherwise terminate the script (Ctrl+C), run equivalent of"
-  echo -e "\033[1;37m . ~/intel/bin/compilervars.sh --arch intel64 -platform linux\033[0m"
-  echo "and rerun the script again. Press any key when ready..."
-  read
-fi
-
-if [ "$useMKL" = true ] ; then
-  export HOMEBREW_BLASLAPACK_NAMES="mkl_gf_lp64;mkl_sequential;mkl_core"
-  export HOMEBREW_BLASLAPACK_EXTRA="pthread;m;dl"
-  export HOMEBREW_BLASLAPACK_LIB="${MKLROOT}/lib/intel64"
+  export HOMEBREW_BLASLAPACK_NAMES="mkl_intel_lp64;mkl_sequential;mkl_core"
+  export HOMEBREW_BLASLAPACK_EXTRA="pthread;m" #;dl"
+  export HOMEBREW_BLASLAPACK_LIB="${MKLROOT}/lib"
   export HOMEBREW_BLASLAPACK_INC="${MKLROOT}/include"
 fi
 
@@ -155,8 +131,7 @@ install_ruby=false
 secho "Check ruby version..."
 if builtin command -v ruby > /dev/null; then
   ruby_version="$(ruby -e 'print RUBY_VERSION')"
-  # due to require_relative bug in 1.9.2. up the min version to
-  ruby_min=2.0.0
+  ruby_min=1.8.6
   if [ "$(version "$ruby_version")" -lt "$(version "$ruby_min")" ]; then
      install_ruby=true
      echo "$ruby_version is less than $ruby_min , required by Linuxbrew !"
@@ -168,62 +143,79 @@ else
   install_ruby=true
 fi
 
+if [ "$install_ruby" = true ]; then
+  secho "Compiling ruby..."
+  cd $HOMEBREW_PREFIX && \
+  mkdir -p _cache && \
+  cd _cache && \
+  wget https://cache.ruby-lang.org/pub/ruby/2.2/ruby-2.2.3.tar.gz &> wget.log && \
+  tar xvzf ruby-2.2.3.tar.gz ruby-2.2.3 &> tar.log && \
+  cd ruby-2.2.3 && \
+  ./configure --prefix=$HOMEBREW_PREFIX &> config.log && \
+  make &> make.log && \
+  make install &> install.log
+fi
+
+# if we already created symlinks, do not re-do them
+#if [[ ! -e $HOMEBREW_PREFIX/bin/gcc-`gcc -dumpversion |cut -d. -f1,2` ]]; then
+#  secho "Make simlinks for GCC to make sure Linuxbrew picks it up..."
+#  ln -s `which gcc` $HOMEBREW_PREFIX/bin/gcc-`gcc -dumpversion |cut -d. -f1,2`
+#  ln -s `which g++` $HOMEBREW_PREFIX/bin/g++-`g++ -dumpversion |cut -d. -f1,2`
+#  ln -s `which gfortran` $HOMEBREW_PREFIX/bin/gfortran-`gcc -dumpversion |cut -d. -f1,2`
+#fi
+
 brew install pkg-config && \
 brew install openssl && brew postinstall openssl
 
-if [ "$install_ruby" = true ]; then
-  brew install ruby
-fi
-
-
-if [ "$useSystemLibs" = false ] ; then
-  # brew install xz gcc # Fixes issues installing Trilinos with GCC 4.8.4 (Fortran verification failure) [Fortran in Trilinos currently disabled by default]
+brew install gcc --without-multilib
+#if [ "$useMKL" = true ] ; then
+#  brew install mpich
+#else
   brew install openmpi --c++11 # Requires a Java Runtime
-  brew install cmake --without-docs # Currently fails with docs
-fi
+#fi
+brew install cmake
 
 # -------------
 # DEAL.II SUITE
 # -------------
 brew tap davydden/dealiisuite
 
-if [ "$useSystemLibs" = false ] ; then
-  brew install openblas
-fi
-
 brew install boost --with-mpi --without-single && \
 brew install hdf5 --with-mpi --c++11 && \
 brew test hdf5 && \
-brew install hypre && \
+brew install hypre --env=std && \
 brew install metis && \
 brew test metis && \
 brew install parmetis && \
-brew test parmetis
+brew test parmetis && \
 brew install superlu_dist && \
 brew test superlu_dist && \
-brew install scalapack && \
-brew install mumps && \
+brew install scalapack --env=std --without-check && \
+brew install mumps --env=std && \
 brew test mumps && \
-brew install petsc && \
+brew install petsc --env=std && \
 brew test petsc && \
-brew install arpack --with-mpi && \
+brew install arpack --with-mpi --env=std && \
 brew test arpack && \
-brew install slepc && \
+brew install slepc --env=std && \
 brew test slepc && \
-brew install p4est && \
-brew install suite-sparse && \
-HOMEBREW_MAKE_JOBS=1 brew install trilinos && \
+brew install p4est --env=std && \
+brew install suite-sparse --env=std && \
+brew install trilinos --env=std && \
 brew test trilinos && \
 brew install numdiff && \
 brew install oce --without-x11 && \
 brew test oce && \
-brew install dealii --without-netcdf --without-tbb --without-muparser && \
+brew install tbb --env=std && \
+brew install netcdf --with-cxx-compat --with-fortran --env=std && \
+brew test netcdf && \
+brew install muparser --env=std && \
+brew install dealii --env=std && \
 brew test dealii
-
 
 if [[ -e $bashfile ]]; then
   if [[ (( $addHBpaths == "y" )) || (( $addHBpaths == "Y" )) || (( $addHBpaths == "Yes" )) || (( $addHBpaths == "yes" )) ]]; then
-    secho2 "Adding Homebrew paths to" "$bashfile"
+    secho "Adding Homebrew paths to $bashfile"
 
     echo "" >> $bashfile
     echo "## === LINUXBREW ===" >> $bashfile
@@ -234,6 +226,12 @@ if [[ -e $bashfile ]]; then
     echo "MANPATH=\"\$HOMEBREW_PREFIX/share/man:\$MANPATH\"" >> $bashfile
     echo "INFOPATH=\"\$HOMEBREW_PREFIX/share/info:\$INFOPATH\"" >> $bashfile
     echo "DEAL_II_DIR=\$HOMEBREW_PREFIX" >> $bashfile
+
+    if [ "$useMKL" = true ] ; then
+      echo "HOMEBREW_BLASLAPACK_NAMES=\"mkl_intel_lp64;mkl_sequential;mkl_core\"" >> $bashfile
+      echo "HOMEBREW_BLASLAPACK_LIB=\"\${MKLROOT}/lib/intel64\"" >> $bashfile
+      echo "HOMEBREW_BLASLAPACK_INC=\"\${MKLROOT}/include\"" >> $bashfile
+    fi
   else
     wecho ""
     echo "To use deal.II you must pass the following flag to CMake when configuring your problems:"
