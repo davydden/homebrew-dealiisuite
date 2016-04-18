@@ -4,8 +4,8 @@ require_relative "requirements/cmake_requirement"
 class Dealii < Formula
   desc "open source finite element library"
   homepage "http://www.dealii.org"
-  url "https://github.com/dealii/dealii/releases/download/v8.4.0/dealii-8.4.0.tar.gz"
-  sha256 "36a20e097a03f17b557e11aad1400af8c6252d25f7feca40b611d5fc16d71990"
+  url "https://github.com/dealii/dealii/releases/download/v8.4.1/dealii-8.4.1.tar.gz"
+  sha256 "00a0e92d069cdafd216816f1aff460f7dbd48744b0d9e0da193287ebf7d6b3ad"
 
   bottle do
     cellar :any
