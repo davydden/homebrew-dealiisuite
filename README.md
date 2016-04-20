@@ -1,4 +1,11 @@
 # homebrew-dealIIsuite
+
+### IMPORTANT NOTICE
+```bash
+This repository is no longer being maintained. 
+The authors have switched to Spack https://github.com/LLNL/spack .
+```
+
 A collection of formulae needed to install `deal.II` on OS-X, as well as Linux
 desktop machines and clusters.
 For Linux users, provided below are instructions on how to install on:
